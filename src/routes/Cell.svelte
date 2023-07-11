@@ -30,14 +30,27 @@
         }
         if (cell.value == "P") {
             let iInc = cell.color == "white" ? -1 : +1;
-            const difColor = state[i + iInc][j].color == not(cell.color);
-            if (state[i + iInc][j].value == "" || difColor) {
+            let goStraight = false;
+            if (state[i + iInc][j].value == "") {
                 moves.push({
                     i: i + iInc,
                     j,
-                    capture: difColor,
+                    capture: false,
                 });
+                goStraight = true;
             }
+            console.log((cell.color == "black" ? 1 : 6))
+            if (goStraight && i == (cell.color == "black" ? 1 : 6)) {
+                if(state[i+iInc*2][j].value=="")
+                {
+                    moves.push({
+                    i: i + iInc*2,
+                    j,
+                    capture: false,
+                }); 
+                }
+            }
+            // if(state[])
 
             [1, -1].forEach((a) => {
                 if (
@@ -52,6 +65,102 @@
                 }
             });
         }
+        if (cell.value == "R") {
+            let rowMoves: Move[] = [];
+            let colMoves: Move[] = [];
+            // for(let loopJ  = j;loopJ<8;loopJ++)
+            for (let loopJ = j - 1; loopJ >= 0; loopJ--) {
+                console.log("here1");
+                if (state[i][loopJ].color == cell.color) {
+                    break;
+                }
+                if (state[i][loopJ].color == not(cell.color)) {
+                    rowMoves.push({
+                        i,
+                        j: loopJ,
+                        capture: true,
+                    });
+                    break;
+                } else if (state[i][loopJ].color == "") {
+                    rowMoves.push({
+                        i,
+                        j: loopJ,
+                        capture: false,
+                    });
+                }
+            }
+            for (let loopJ = j + 1; loopJ < 8; loopJ++) {
+                console.log("here2");
+                if (state[i][loopJ].color == cell.color) {
+                    break;
+                    // rowMoves = [];
+                }
+                if (state[i][loopJ].color == not(cell.color)) {
+                    rowMoves.push({
+                        i,
+                        j: loopJ,
+                        capture: true,
+                    });
+                    break;
+                } else if (state[i][loopJ].color == "") {
+                    rowMoves.push({
+                        i,
+                        j: loopJ,
+                        capture: false,
+                    });
+                }
+            }
+            for (let loopI = i - 1; loopI > 0; loopI--) {
+                // console.log("behind");
+                console.log("here3");
+                if (state[loopI][j].color == cell.color) {
+                    break;
+                    // colMoves = [];
+                }
+                if (state[loopI][j].color == not(cell.color)) {
+                    colMoves.push({
+                        i:loopI,
+                        j,
+                        capture: true,
+                    });
+                    break;
+                } else if (state[loopI][j].color == "") {
+                    colMoves.push({
+                        i:loopI,
+                        j,
+                        capture: false,
+                    });
+                }
+            }
+            for (let loopI = i + 1; loopI < 8; loopI++) {
+                console.log("here4");
+                if (state[loopI][j].color == cell.color) {
+                    break;
+                }
+                if (state[loopI][j].color == not(cell.color)) {
+                    colMoves.push({
+                        i: loopI,
+                        j,
+                        capture: true,
+                    });
+                    break;
+                } else if (state[loopI][j].color == "") {
+                    colMoves.push({
+                        i: loopI,
+                        j,
+                        capture: false,
+                    });
+                }
+                // colMoves=[]
+            }
+            colMoves.forEach((c) => {
+                moves.push(c);
+            });
+            rowMoves.forEach((r) => {
+                moves.push(r);
+            });
+        }
+        console.log(moves);
         return moves;
     }
     function not(cellColor: "white" | "black" | "") {
@@ -94,26 +203,44 @@
 
 <button
     on:click={() => {
+        console.log("clicked");
         if (selectedCell.i > -1 && selectedCell.j > -1) {
+            console.log("moving");
+
             let moves = findPossibleMoves(
                 state,
                 selectedCell.i,
                 selectedCell.j
             );
-            let moveSuccess = move(
-                selectedCell.i,
-                selectedCell.j,
-                i,
-                j,
-                state,
-                moves
-            );
+            let moveSuccess = false;
+
+            moves.forEach((m) => {
+                if (m.i == i && m.j == j) {
+                    state[i][j] = { ...state[selectedCell.i][selectedCell.j] };
+                    state[selectedCell.i][selectedCell.j] = {
+                        cellBg: "plain",
+                        color: "",
+                        value: "",
+                    };
+                    moveSuccess = true;
+                }
+            });
+            console.log(moveSuccess);
+            // let moveSuccess = move(
+            //     selectedCell.i,
+            //     selectedCell.j,
+            //     i,
+            //     j,
+            //     state,
+            //     moves
+            // );
             selectedCell = {
-                i:-1,
-                j:-1
-            }
+                i: -1,
+                j: -1,
+            };
             normalizeState(state);
         } else {
+            console.log("generating moves");
             normalizeState(state);
             let moves = findPossibleMoves(state, i, j);
             moves.forEach((m) => {
