@@ -197,6 +197,66 @@
                 });
             });
         }
+        if (cell.value == "B") {
+            [
+                {
+                    iInc: 1,
+                    jInc: 1,
+                    limi: 8,
+                    limj: 8,
+                },
+                {
+                    iInc: -1,
+                    jInc: 1,
+                    limi: 0,
+                    limj: 8,
+                },
+                {
+                    iInc: -1,
+                    jInc: -1,
+                    limi: 0,
+                    limj: 0,
+                },
+                {
+                    iInc: 1,
+                    jInc: -1,
+                    limi: 8,
+                    limj: 0,
+                },
+            ].forEach((incs) => {
+                const { iInc, jInc, limi, limj } = incs;
+                let loopI = i + iInc;
+                let loopJ = j + jInc;
+                while (
+                    (limi > 0 ? loopI < limi : loopI >= limi) &&
+                    (limj > 0 ? loopJ < limj : loopJ >= limj)
+                ) {
+                    const dRow = state[loopI];
+                    if (dRow) {
+                        const dCell = dRow[loopJ];
+
+                        if (dCell.value == "") {
+                            moves.push({
+                                i: loopI,
+                                j: loopJ,
+                                capture: false,
+                            });
+                            loopI+=iInc;
+                            loopJ+=jInc;
+                        } else {
+                            if (dCell.color == not(cell.color)) {
+                                moves.push({
+                                    i: loopI,
+                                    j: loopJ,
+                                    capture: true,
+                                });
+                            }
+                            break;
+                        }
+                    }
+                }
+            });
+        }
         console.log(moves);
         return moves;
     }
