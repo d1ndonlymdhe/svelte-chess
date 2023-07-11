@@ -39,15 +39,14 @@
                 });
                 goStraight = true;
             }
-            console.log((cell.color == "black" ? 1 : 6))
+            console.log(cell.color == "black" ? 1 : 6);
             if (goStraight && i == (cell.color == "black" ? 1 : 6)) {
-                if(state[i+iInc*2][j].value=="")
-                {
+                if (state[i + iInc * 2][j].value == "") {
                     moves.push({
-                    i: i + iInc*2,
-                    j,
-                    capture: false,
-                }); 
+                        i: i + iInc * 2,
+                        j,
+                        capture: false,
+                    });
                 }
             }
             // if(state[])
@@ -119,14 +118,14 @@
                 }
                 if (state[loopI][j].color == not(cell.color)) {
                     colMoves.push({
-                        i:loopI,
+                        i: loopI,
                         j,
                         capture: true,
                     });
                     break;
                 } else if (state[loopI][j].color == "") {
                     colMoves.push({
-                        i:loopI,
+                        i: loopI,
                         j,
                         capture: false,
                     });
@@ -158,6 +157,44 @@
             });
             rowMoves.forEach((r) => {
                 moves.push(r);
+            });
+        }
+        if (cell.value == "H") {
+            [2, -2].forEach((loopI) => {
+                [-1, 1].forEach((loopJ) => {
+                    console.log(i + loopI, j + loopJ);
+                    const di = i + loopI;
+                    const dj = j + loopJ;
+                    const dRow = state[di];
+                    if (dRow) {
+                        const dCell = dRow[dj];
+                        if (dCell && dCell.color != cell.color) {
+                            moves.push({
+                                i: di,
+                                j: dj,
+                                capture: dCell.color == not(cell.color),
+                            });
+                        }
+                    }
+                });
+            });
+            [1, -1].forEach((loopI) => {
+                [-2, 2].forEach((loopJ) => {
+                    console.log(i + loopI, j + loopJ);
+                    const di = i + loopI;
+                    const dj = j + loopJ;
+                    const dRow = state[di];
+                    if (dRow) {
+                        const dCell = dRow[dj];
+                        if (dCell && dCell.color != cell.color) {
+                            moves.push({
+                                i: di,
+                                j: dj,
+                                capture: dCell.color == not(cell.color),
+                            });
+                        }
+                    }
+                });
             });
         }
         console.log(moves);
