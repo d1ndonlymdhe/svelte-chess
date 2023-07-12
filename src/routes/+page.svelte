@@ -4,11 +4,16 @@
         color: "black" | "white" | "";
         cellBg: CellBg;
     };
+    export type Pos = {
+        i: number;
+        j: number;
+    };
 </script>
 
 <script lang="ts">
     import Cell, { type CellBg } from "./Cell.svelte";
     import "../app.css";
+    let passantAble: Pos = { i: -1, j: -1 };
     let state: CellType[][] = [
         [
             { color: "black", value: "R", cellBg: "plain" },
@@ -91,6 +96,16 @@
             { color: "white", value: "R", cellBg: "plain" },
         ],
     ];
+    let kingPos = {
+        black: {
+            i: 0,
+            j: 3,
+        },
+        white: {
+            i: 7,
+            j: 3,
+        },
+    };
     let selectedCell: {
         i: number;
         j: number;
@@ -104,7 +119,14 @@
     {#each state as row, i}
         <div class="grid grid-cols-[repeat(8,1fr)]">
             {#each row as cell, j}
-                <Cell bind:cell {i} {j} bind:state bind:selectedCell />
+                <Cell
+                    bind:cell
+                    {i}
+                    {j}
+                    bind:state
+                    bind:selectedCell
+                    bind:kingPos
+                />
             {/each}
         </div>
     {/each}
