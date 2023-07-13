@@ -954,7 +954,27 @@
         console.log("check end");
         return false;
     }
-
+    function checkmateCheck(state:CellType[][],victimColor: Turn,kingPos:{
+        black:Pos,
+        white:Pos
+    }){
+        const moves:Move[] = [] 
+        let tempState:CellType[][] = []
+        state.forEach(r=>{
+            tempState.push([...r]);
+        })
+        state.forEach((r,i)=>{
+            r.forEach((c,i)=>{
+                if(c.color == victimColor){
+                    let possibleMoves = findPossibleMoves(state,i,j,kingPos);
+                    
+                    possibleMoves.forEach(m=>{
+                        
+                    })
+                }
+            })
+        })
+    }
     function not(cellColor: "white" | "black" | "") {
         if (cellColor == "white") {
             return "black";
