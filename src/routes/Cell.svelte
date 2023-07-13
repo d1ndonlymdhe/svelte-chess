@@ -9,10 +9,11 @@
 
 <script lang="ts">
     import "../app.css";
-    import type { CellType, Pos } from "./+page.svelte";
+    import type { CellType, Pos, Turn } from "./+page.svelte";
     export let cell: CellType;
     export let i: number, j: number;
     export let state: CellType[][];
+    export let turn: Turn;
     // export let passantee : Pos[];
     // export let passenter : Pos[];
     export let kingPos: {
@@ -914,7 +915,6 @@
         // return moves;
         return sanitizeMoves(state, moves, i, j, kingPos);
     }
-
     function checkCheck(
         state: CellType[][],
         victimColor: "black" | "white",
@@ -995,10 +995,7 @@
 
 <button
     on:click={() => {
-        // //console.log("clicked");
         if (selectedCell.i > -1 && selectedCell.j > -1) {
-            // //console.log("moving");
-
             let moves = findPossibleMoves(
                 state,
                 selectedCell.i,
@@ -1018,37 +1015,43 @@
                     moveSuccess = true;
                 }
             });
-            // //console.log(moveSuccess);
-            if (moveSuccess && dCell.value == "K") {
-                if (dCell.color != "") {
-                    kingPos[dCell.color] = {
-                        i,
-                        j,
-                    };
+            if (moveSuccess) {
+                let x = not(turn);
+                if (x != "") {
+                    //@ts-ignore
+                    turn = x;
                 }
+                if (dCell.value == "K") {
+                    if (dCell.color != "") {
+                        kingPos[dCell.color] = {
+                            i,
+                            j,
+                        };
+                    }
+                }
+                selectedCell = {
+                    i: -1,
+                    j: -1,
+                };
             }
-            // //console.log(kingPos)
-            selectedCell = {
-                i: -1,
-                j: -1,
-            };
-            // console.log("check = ", checkCheck(state, "black", kingPos));
+
             normalizeState(state);
         } else {
-            // //console.log("generating moves");
-            normalizeState(state);
-            let moves = findPossibleMoves(state, i, j, kingPos);
-            moves.forEach((m) => {
-                state[m.i][m.j].cellBg = m.capture ? "capture" : "move";
-            });
-            selectedCell = {
-                i,
-                j,
-            };
+            if (turn == state[i][j].color) {
+                normalizeState(state);
+                let moves = findPossibleMoves(state, i, j, kingPos);
+                moves.forEach((m) => {
+                    state[m.i][m.j].cellBg = m.capture ? "capture" : "move";
+                });
+                selectedCell = {
+                    i,
+                    j,
+                };
+            }
         }
     }}
     class={`relative ${
-        bgColor == "b" ? "bg-black" : "bg-lime-300/50"
+        bgColor == "b" ? "bg-slate-700" : "bg-lime-300/50"
     } text-[#ff79c6] font-bold`}
 >
     <div
@@ -1062,6 +1065,14 @@
         }`}
     />
     {#if cell.color || cell.value}
-        {cell.color}|{cell.value}
+        <!-- {cell.color}|{cell.value} -->
+        <div class="flex justify-center items-center">
+            <img
+                alt={`${cell.color}|${cell.value}`}
+                src={`/images/${
+                    cell.color
+                }_${cell.value.toLocaleLowerCase()}.png`}
+            />
+        </div>
     {/if}
 </button>

@@ -8,12 +8,14 @@
         i: number;
         j: number;
     };
+    export type Turn = "white" | "black"
 </script>
 
 <script lang="ts">
     import Cell, { type CellBg } from "./Cell.svelte";
     import "../app.css";
     let passantAble: Pos = { i: -1, j: -1 };
+    let turn:Turn = "white";
     let state: CellType[][] = [
         [
             { color: "black", value: "R", cellBg: "plain" },
@@ -126,6 +128,7 @@
                     bind:state
                     bind:selectedCell
                     bind:kingPos
+                    bind:turn
                 />
             {/each}
         </div>
