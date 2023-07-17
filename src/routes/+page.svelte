@@ -21,8 +21,9 @@
             { color: "black", value: "R", cellBg: "plain" },
             { color: "black", value: "H", cellBg: "plain" },
             { color: "black", value: "B", cellBg: "plain" },
-            { color: "black", value: "K", cellBg: "plain" },
+           
             { color: "black", value: "Q", cellBg: "plain" },
+            { color: "black", value: "K", cellBg: "plain" },
             { color: "black", value: "B", cellBg: "plain" },
             { color: "black", value: "H", cellBg: "plain" },
             { color: "black", value: "R", cellBg: "plain" },
@@ -91,8 +92,9 @@
             { color: "white", value: "R", cellBg: "plain" },
             { color: "white", value: "H", cellBg: "plain" },
             { color: "white", value: "B", cellBg: "plain" },
-            { color: "white", value: "K", cellBg: "plain" },
+    
             { color: "white", value: "Q", cellBg: "plain" },
+            { color: "white", value: "K", cellBg: "plain" },
             { color: "white", value: "B", cellBg: "plain" },
             { color: "white", value: "H", cellBg: "plain" },
             { color: "white", value: "R", cellBg: "plain" },
@@ -101,11 +103,11 @@
     let kingPos = {
         black: {
             i: 0,
-            j: 3,
+            j: 4,
         },
         white: {
             i: 7,
-            j: 3,
+            j: 4,
         },
     };
     let selectedCell: {
@@ -117,7 +119,7 @@
     };
 </script>
 
-<div class="grid grid-rows-[repeat(8,1fr)] w-[40vw] h-[40vw]">
+<div class="grid grid-rows-[repeat(8,1fr)] w-[100vh] h-[100vh]">
     {#each state as row, i}
         <div class="grid grid-cols-[repeat(8,1fr)]">
             {#each row as cell, j}

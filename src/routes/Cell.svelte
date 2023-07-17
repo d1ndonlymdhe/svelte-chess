@@ -42,7 +42,9 @@
     ) {
         let retMoves: Move[] = [];
         let curCell = state[curI][curJ];
-        console.log("moves to be sanitied = ", moves);
+        ////console.log("moves to be sanitied = ", moves);
+        // alert("cur cell="+curCell.value);
+        console.log("checking moves")
         moves.forEach((m) => {
             let tempState: CellType[][] = [];
             state.forEach((r) => {
@@ -59,7 +61,10 @@
             //     color:"white",
             //     value:"HEllo"
             // }
+            console.log("check check start")
             if (curCell.color !== "") {
+                // alert("king selected")
+                console.log("checking ",curCell)
                 if (curCell.value == "K") {
                     let tKps = { ...kingPos };
                     tKps[curCell.color] = {
@@ -75,8 +80,12 @@
                     }
                 }
             }
+            console.log("check check end")
+
         });
-        console.log("retmoves = ", retMoves);
+        console.log("end checking moves")
+
+        ////console.log("retmoves = ", retMoves);
         return retMoves;
     }
     function findMovesNoSanitize(
@@ -89,7 +98,7 @@
         }
     ) {
         const cell = state[i][j];
-        // //console.log("cell = ",cell)
+        // //////console.log("cell = ",cell)
         const moves: Move[] = [];
         if (cell.value == "") {
             return moves;
@@ -105,7 +114,7 @@
                 });
                 goStraight = true;
             }
-            // //console.log(cell.color == "black" ? 1 : 6);
+            // //////console.log(cell.color == "black" ? 1 : 6);
             if (goStraight && i == (cell.color == "black" ? 1 : 6)) {
                 if (state[i + iInc * 2][j].value == "") {
                     moves.push({
@@ -135,7 +144,7 @@
             let colMoves: Move[] = [];
             // for(let loopJ  = j;loopJ<8;loopJ++)
             for (let loopJ = j - 1; loopJ >= 0; loopJ--) {
-                // //console.log("here1");
+                // //////console.log("here1");
                 if (state[i][loopJ].color == cell.color) {
                     break;
                 }
@@ -155,7 +164,7 @@
                 }
             }
             for (let loopJ = j + 1; loopJ < 8; loopJ++) {
-                // //console.log("here2");
+                // //////console.log("here2");
                 if (state[i][loopJ].color == cell.color) {
                     break;
                     // rowMoves = [];
@@ -175,9 +184,9 @@
                     });
                 }
             }
-            for (let loopI = i - 1; loopI > 0; loopI--) {
-                // //console.log("behind");
-                // //console.log("here3");
+            for (let loopI = i - 1; loopI >= 0; loopI--) {
+                // //////console.log("behind");
+                // //////console.log("here3");
                 if (state[loopI][j].color == cell.color) {
                     break;
                     // colMoves = [];
@@ -198,7 +207,7 @@
                 }
             }
             for (let loopI = i + 1; loopI < 8; loopI++) {
-                // //console.log("here4");
+                // //////console.log("here4");
                 if (state[loopI][j].color == cell.color) {
                     break;
                 }
@@ -228,7 +237,7 @@
         if (cell.value == "H") {
             [2, -2].forEach((loopI) => {
                 [-1, 1].forEach((loopJ) => {
-                    // //console.log(i + loopI, j + loopJ);
+                    // //////console.log(i + loopI, j + loopJ);
                     const di = i + loopI;
                     const dj = j + loopJ;
                     const dRow = state[di];
@@ -246,7 +255,7 @@
             });
             [1, -1].forEach((loopI) => {
                 [-2, 2].forEach((loopJ) => {
-                    // //console.log(i + loopI, j + loopJ);
+                    // //////console.log(i + loopI, j + loopJ);
                     const di = i + loopI;
                     const dj = j + loopJ;
                     const dRow = state[di];
@@ -326,7 +335,7 @@
             let colMoves: Move[] = [];
             // for(let loopJ  = j;loopJ<8;loopJ++)
             for (let loopJ = j - 1; loopJ >= 0; loopJ--) {
-                //console.log("here1");
+                //////console.log("here1");
                 if (state[i][loopJ].color == cell.color) {
                     break;
                 }
@@ -346,7 +355,7 @@
                 }
             }
             for (let loopJ = j + 1; loopJ < 8; loopJ++) {
-                //console.log("here2");
+                //////console.log("here2");
                 if (state[i][loopJ].color == cell.color) {
                     break;
                     // rowMoves = [];
@@ -366,9 +375,9 @@
                     });
                 }
             }
-            for (let loopI = i - 1; loopI > 0; loopI--) {
-                // //console.log("behind");
-                //console.log("here3");
+            for (let loopI = i - 1; loopI >= 0; loopI--) {
+                // //////console.log("behind");
+                //////console.log("here3");
                 if (state[loopI][j].color == cell.color) {
                     break;
                     // colMoves = [];
@@ -389,7 +398,7 @@
                 }
             }
             for (let loopI = i + 1; loopI < 8; loopI++) {
-                //console.log("here4");
+                //////console.log("here4");
                 if (state[loopI][j].color == cell.color) {
                     break;
                 }
@@ -493,7 +502,7 @@
                 }
             }
         }
-        // //console.log(moves);
+        // //////console.log(moves);
         return moves;
         // return sanitizeMoves(state, moves, i, j, kingPos);
     }
@@ -507,7 +516,7 @@
         }
     ) {
         const cell = state[i][j];
-        // //console.log("cell = ",cell)
+        // //////console.log("cell = ",cell)
         const moves: Move[] = [];
         if (cell.value == "") {
             return moves;
@@ -523,7 +532,7 @@
                 });
                 goStraight = true;
             }
-            // //console.log(cell.color == "black" ? 1 : 6);
+            // //////console.log(cell.color == "black" ? 1 : 6);
             if (goStraight && i == (cell.color == "black" ? 1 : 6)) {
                 if (state[i + iInc * 2][j].value == "") {
                     moves.push({
@@ -553,7 +562,7 @@
             let colMoves: Move[] = [];
             // for(let loopJ  = j;loopJ<8;loopJ++)
             for (let loopJ = j - 1; loopJ >= 0; loopJ--) {
-                // //console.log("here1");
+                // //////console.log("here1");
                 if (state[i][loopJ].color == cell.color) {
                     break;
                 }
@@ -573,7 +582,7 @@
                 }
             }
             for (let loopJ = j + 1; loopJ < 8; loopJ++) {
-                // //console.log("here2");
+                // //////console.log("here2");
                 if (state[i][loopJ].color == cell.color) {
                     break;
                     // rowMoves = [];
@@ -593,9 +602,9 @@
                     });
                 }
             }
-            for (let loopI = i - 1; loopI > 0; loopI--) {
-                // //console.log("behind");
-                // //console.log("here3");
+            for (let loopI = i - 1; loopI >= 0; loopI--) {
+                // //////console.log("behind");
+                // //////console.log("here3");
                 if (state[loopI][j].color == cell.color) {
                     break;
                     // colMoves = [];
@@ -616,7 +625,7 @@
                 }
             }
             for (let loopI = i + 1; loopI < 8; loopI++) {
-                // //console.log("here4");
+                // //////console.log("here4");
                 if (state[loopI][j].color == cell.color) {
                     break;
                 }
@@ -646,7 +655,7 @@
         if (cell.value == "H") {
             [2, -2].forEach((loopI) => {
                 [-1, 1].forEach((loopJ) => {
-                    // //console.log(i + loopI, j + loopJ);
+                    // //////console.log(i + loopI, j + loopJ);
                     const di = i + loopI;
                     const dj = j + loopJ;
                     const dRow = state[di];
@@ -664,7 +673,7 @@
             });
             [1, -1].forEach((loopI) => {
                 [-2, 2].forEach((loopJ) => {
-                    // //console.log(i + loopI, j + loopJ);
+                    // //////console.log(i + loopI, j + loopJ);
                     const di = i + loopI;
                     const dj = j + loopJ;
                     const dRow = state[di];
@@ -744,7 +753,7 @@
             let colMoves: Move[] = [];
             // for(let loopJ  = j;loopJ<8;loopJ++)
             for (let loopJ = j - 1; loopJ >= 0; loopJ--) {
-                //console.log("here1");
+                //////console.log("here1");
                 if (state[i][loopJ].color == cell.color) {
                     break;
                 }
@@ -764,7 +773,7 @@
                 }
             }
             for (let loopJ = j + 1; loopJ < 8; loopJ++) {
-                //console.log("here2");
+                //////console.log("here2");
                 if (state[i][loopJ].color == cell.color) {
                     break;
                     // rowMoves = [];
@@ -785,8 +794,8 @@
                 }
             }
             for (let loopI = i - 1; loopI > 0; loopI--) {
-                // //console.log("behind");
-                //console.log("here3");
+                // //////console.log("behind");
+                //////console.log("here3");
                 if (state[loopI][j].color == cell.color) {
                     break;
                     // colMoves = [];
@@ -807,7 +816,7 @@
                 }
             }
             for (let loopI = i + 1; loopI < 8; loopI++) {
-                //console.log("here4");
+                //////console.log("here4");
                 if (state[loopI][j].color == cell.color) {
                     break;
                 }
@@ -911,7 +920,7 @@
                 }
             }
         }
-        // //console.log(moves);
+        // //////console.log(moves);
         // return moves;
         return sanitizeMoves(state, moves, i, j, kingPos);
     }
@@ -927,53 +936,66 @@
         let check = false;
         // const enemyPos: Pos[] = [];
         //TODO make a system with piece count
+        //console.log("victim color = ",victimColor )
         console.log("Check start");
+
         for (let loopI = 0; loopI < 8; loopI++) {
             for (let loopJ = 0; loopJ < 8; loopJ++) {
                 if (state[loopI][loopJ].color == not(victimColor)) {
-                    //console.log("op color");
+                    //////console.log("op color");
                     const moves = findMovesNoSanitize(
                         state,
                         loopI,
                         loopJ,
                         kingPos
                     );
+                    console.log("i,j = ", i, j);
+                    console.log("moves = ", moves);
                     check =
                         moves.filter((m) => {
                             return m.i == i && m.j == j && m.capture == true;
                         }).length !== 0;
                     if (check) {
-                        console.log("check = true");
-                        console.log("check end");
+                        console.log("cehck end");
                         return true;
                     }
                 }
             }
         }
-        console.log("check = false");
-        console.log("check end");
+        console.log("cehck end");
         return false;
     }
-    function checkmateCheck(state:CellType[][],victimColor: Turn,kingPos:{
-        black:Pos,
-        white:Pos
-    }){
-        const moves:Move[] = [] 
-        let tempState:CellType[][] = []
-        state.forEach(r=>{
-            tempState.push([...r]);
-        })
-        state.forEach((r,i)=>{
-            r.forEach((c,i)=>{
-                if(c.color == victimColor){
-                    let possibleMoves = findPossibleMoves(state,i,j,kingPos);
-                    
-                    possibleMoves.forEach(m=>{
-                        
-                    })
+    function checkmateCheck(
+        state: CellType[][],
+        victimColor: Turn,
+        kingPos: {
+            black: Pos;
+            white: Pos;
+        }
+    ) {
+        for (let i = 0; i < 8; i++) {
+            let row = state[i];
+            if (row) {
+                for (let j = 0; j < 8; j++) {
+                    let cell = row[j];
+                    if (cell.color == victimColor) {
+                        let possibleMoves = findPossibleMoves(
+                            state,
+                            i,
+                            j,
+                            kingPos
+                        );
+                        if (possibleMoves.length > 0) {
+                            console.log("move from = ", i, j);
+                            console.log("cm moves = ", possibleMoves);
+                            return false;
+                        }
+                    }
                 }
-            })
-        })
+            }
+        }
+
+        return true;
     }
     function not(cellColor: "white" | "black" | "") {
         if (cellColor == "white") {
@@ -989,33 +1011,16 @@
                 cell.cellBg = "plain";
             });
         });
-    }
-    function move(
-        ci: number,
-        cj: number,
-        di: number,
-        dj: number,
-        state: CellType[][],
-        moves: Move[]
-    ) {
-        moves.forEach((m) => {
-            if (m.i == di && m.j == dj) {
-                state[di][dj] = { ...state[ci][cj] };
-                state[ci][cj] = {
-                    cellBg: "plain",
-                    color: "",
-                    value: "",
-                };
-                return true;
-            }
-        });
-        return false;
+        state = state;
     }
 </script>
 
 <button
     on:click={() => {
         if (selectedCell.i > -1 && selectedCell.j > -1) {
+            //@ts-ignore
+            let vColor = not(state[selectedCell.i][selectedCell.j].color);
+            //console.log("color = ", vColor);
             let moves = findPossibleMoves(
                 state,
                 selectedCell.i,
@@ -1049,13 +1054,39 @@
                         };
                     }
                 }
+
+                if (
+                    checkmateCheck(
+                        state,
+                        //@ts-ignore
+                        vColor,
+                        kingPos
+                    )
+                ) {
+                    alert("Checkmate");
+                }
                 selectedCell = {
                     i: -1,
                     j: -1,
                 };
+                normalizeState(state);
+            } else {
+                // selectedCell = {
+                //     i: -1,
+                //     j: -1,
+                // };
+                if (turn == state[i][j].color) {
+                    normalizeState(state);
+                    let moves = findPossibleMoves(state, i, j, kingPos);
+                    moves.forEach((m) => {
+                        state[m.i][m.j].cellBg = m.capture ? "capture" : "move";
+                    });
+                    selectedCell = {
+                        i,
+                        j,
+                    };
+                }
             }
-
-            normalizeState(state);
         } else {
             if (turn == state[i][j].color) {
                 normalizeState(state);
