@@ -44,7 +44,7 @@
         let curCell = state[curI][curJ];
         ////console.log("moves to be sanitied = ", moves);
         // alert("cur cell="+curCell.value);
-        console.log("checking moves")
+        console.log("checking moves");
         moves.forEach((m) => {
             let tempState: CellType[][] = [];
             state.forEach((r) => {
@@ -56,21 +56,15 @@
                 color: "",
                 value: "",
             };
-            // tempState[0][0] = {
-            //     cellBg:"capture",
-            //     color:"white",
-            //     value:"HEllo"
-            // }
-            console.log("check check start")
+
             if (curCell.color !== "") {
-                // alert("king selected")
-                console.log("checking ",curCell)
                 if (curCell.value == "K") {
                     let tKps = { ...kingPos };
                     tKps[curCell.color] = {
                         i: m.i,
                         j: m.j,
                     };
+
                     if (!checkCheck(tempState, curCell.color, tKps)) {
                         retMoves.push({ ...m });
                     }
@@ -80,10 +74,7 @@
                     }
                 }
             }
-            console.log("check check end")
-
         });
-        console.log("end checking moves")
 
         ////console.log("retmoves = ", retMoves);
         return retMoves;
@@ -501,6 +492,100 @@
                     }
                 }
             }
+
+            const KI = cell.color == "black" ? 0 : 7;
+            let KingCell = state[KI][4];
+            if (i == KI && j == 4) {
+                const RQJ = 0;
+                const RKJ = 7;
+
+                let RookQCell = state[KI][RQJ];
+                let RookKCell = state[KI][RKJ];
+                let QueenCastle = true;
+                let kingCastle = true;
+                if (RookQCell.color == cell.color && RookQCell.value == "R") {
+                    for (let loopJ = 3; loopJ >= 1; loopJ--) {
+                        if (state[KI][loopJ].value !== "") {
+                            QueenCastle = false;
+                            break;
+                        }
+                    }
+                }
+                if (RookKCell.color == cell.color && RookKCell.value == "R") {
+                    for (let loopJ = 5; loopJ <= 6; loopJ++) {
+                        if (state[KI][loopJ].value !== "") {
+                            kingCastle = false;
+                            break;
+                        }
+                    }
+                }
+                if (QueenCastle) {
+                    let tempState: CellType[][] = [];
+                    state.forEach((r) => {
+                        tempState.push([...r]);
+                    });
+                    tempState[KI][3] = {
+                        cellBg: "plain",
+                        color: cell.color,
+                        value: "K",
+                    };
+                    tempState[KI][4] = {
+                        cellBg: "plain",
+                        color: "",
+                        value: "",
+                    };
+                    let tKps = { ...kingPos };
+                    //@ts-ignore
+                    tKps[cell.color] = {
+                        i: KI,
+                        j: 4,
+                    };
+                    //@ts-ignore
+                    if (checkCheck(state, cell.color, tKps)) {
+                        QueenCastle = false;
+                    }
+                }
+                if (kingCastle) {
+                    let tempState: CellType[][] = [];
+                    state.forEach((r) => {
+                        tempState.push([...r]);
+                    });
+                    tempState[KI][5] = {
+                        cellBg: "plain",
+                        color: cell.color,
+                        value: "K",
+                    };
+                    tempState[KI][5] = {
+                        cellBg: "plain",
+                        color: "",
+                        value: "",
+                    };
+                    let tKps = { ...kingPos };
+                    //@ts-ignore
+                    tKps[cell.color] = {
+                        i: KI,
+                        j: 5,
+                    };
+                    //@ts-ignore
+                    if (checkCheck(state, cell.color, tKps)) {
+                        kingCastle = false;
+                    }
+                }
+                if (QueenCastle) {
+                    moves.push({
+                        i: KI,
+                        j: 2,
+                        capture: false,
+                    });
+                }
+                if (kingCastle) {
+                    moves.push({
+                        i: KI,
+                        j: 2,
+                        capture: false,
+                    });
+                }
+            }
         }
         // //////console.log(moves);
         return moves;
@@ -515,413 +600,9 @@
             white: Pos;
         }
     ) {
-        const cell = state[i][j];
-        // //////console.log("cell = ",cell)
-        const moves: Move[] = [];
-        if (cell.value == "") {
-            return moves;
-        }
-        if (cell.value == "P") {
-            let iInc = cell.color == "white" ? -1 : +1;
-            let goStraight = false;
-            if (state[i + iInc][j].value == "") {
-                moves.push({
-                    i: i + iInc,
-                    j,
-                    capture: false,
-                });
-                goStraight = true;
-            }
-            // //////console.log(cell.color == "black" ? 1 : 6);
-            if (goStraight && i == (cell.color == "black" ? 1 : 6)) {
-                if (state[i + iInc * 2][j].value == "") {
-                    moves.push({
-                        i: i + iInc * 2,
-                        j,
-                        capture: false,
-                    });
-                }
-            }
-            // if(state[])
-
-            [1, -1].forEach((a) => {
-                if (
-                    state[i + iInc][j + a] &&
-                    state[i + iInc][j + a].color == not(cell.color)
-                ) {
-                    moves.push({
-                        i: i + iInc,
-                        j: j + a,
-                        capture: true,
-                    });
-                }
-            });
-        }
-        if (cell.value == "R") {
-            let rowMoves: Move[] = [];
-            let colMoves: Move[] = [];
-            // for(let loopJ  = j;loopJ<8;loopJ++)
-            for (let loopJ = j - 1; loopJ >= 0; loopJ--) {
-                // //////console.log("here1");
-                if (state[i][loopJ].color == cell.color) {
-                    break;
-                }
-                if (state[i][loopJ].color == not(cell.color)) {
-                    rowMoves.push({
-                        i,
-                        j: loopJ,
-                        capture: true,
-                    });
-                    break;
-                } else if (state[i][loopJ].color == "") {
-                    rowMoves.push({
-                        i,
-                        j: loopJ,
-                        capture: false,
-                    });
-                }
-            }
-            for (let loopJ = j + 1; loopJ < 8; loopJ++) {
-                // //////console.log("here2");
-                if (state[i][loopJ].color == cell.color) {
-                    break;
-                    // rowMoves = [];
-                }
-                if (state[i][loopJ].color == not(cell.color)) {
-                    rowMoves.push({
-                        i,
-                        j: loopJ,
-                        capture: true,
-                    });
-                    break;
-                } else if (state[i][loopJ].color == "") {
-                    rowMoves.push({
-                        i,
-                        j: loopJ,
-                        capture: false,
-                    });
-                }
-            }
-            for (let loopI = i - 1; loopI >= 0; loopI--) {
-                // //////console.log("behind");
-                // //////console.log("here3");
-                if (state[loopI][j].color == cell.color) {
-                    break;
-                    // colMoves = [];
-                }
-                if (state[loopI][j].color == not(cell.color)) {
-                    colMoves.push({
-                        i: loopI,
-                        j,
-                        capture: true,
-                    });
-                    break;
-                } else if (state[loopI][j].color == "") {
-                    colMoves.push({
-                        i: loopI,
-                        j,
-                        capture: false,
-                    });
-                }
-            }
-            for (let loopI = i + 1; loopI < 8; loopI++) {
-                // //////console.log("here4");
-                if (state[loopI][j].color == cell.color) {
-                    break;
-                }
-                if (state[loopI][j].color == not(cell.color)) {
-                    colMoves.push({
-                        i: loopI,
-                        j,
-                        capture: true,
-                    });
-                    break;
-                } else if (state[loopI][j].color == "") {
-                    colMoves.push({
-                        i: loopI,
-                        j,
-                        capture: false,
-                    });
-                }
-                // colMoves=[]
-            }
-            colMoves.forEach((c) => {
-                moves.push(c);
-            });
-            rowMoves.forEach((r) => {
-                moves.push(r);
-            });
-        }
-        if (cell.value == "H") {
-            [2, -2].forEach((loopI) => {
-                [-1, 1].forEach((loopJ) => {
-                    // //////console.log(i + loopI, j + loopJ);
-                    const di = i + loopI;
-                    const dj = j + loopJ;
-                    const dRow = state[di];
-                    if (dRow) {
-                        const dCell = dRow[dj];
-                        if (dCell && dCell.color != cell.color) {
-                            moves.push({
-                                i: di,
-                                j: dj,
-                                capture: dCell.color == not(cell.color),
-                            });
-                        }
-                    }
-                });
-            });
-            [1, -1].forEach((loopI) => {
-                [-2, 2].forEach((loopJ) => {
-                    // //////console.log(i + loopI, j + loopJ);
-                    const di = i + loopI;
-                    const dj = j + loopJ;
-                    const dRow = state[di];
-                    if (dRow) {
-                        const dCell = dRow[dj];
-                        if (dCell && dCell.color != cell.color) {
-                            moves.push({
-                                i: di,
-                                j: dj,
-                                capture: dCell.color == not(cell.color),
-                            });
-                        }
-                    }
-                });
-            });
-        }
-        if (cell.value == "Q") {
-            [
-                {
-                    iInc: 1,
-                    jInc: 1,
-                    limi: 8,
-                    limj: 8,
-                },
-                {
-                    iInc: -1,
-                    jInc: 1,
-                    limi: 0,
-                    limj: 8,
-                },
-                {
-                    iInc: -1,
-                    jInc: -1,
-                    limi: 0,
-                    limj: 0,
-                },
-                {
-                    iInc: 1,
-                    jInc: -1,
-                    limi: 8,
-                    limj: 0,
-                },
-            ].forEach((incs) => {
-                const { iInc, jInc, limi, limj } = incs;
-                let loopI = i + iInc;
-                let loopJ = j + jInc;
-                while (
-                    (limi > 0 ? loopI < limi : loopI >= limi) &&
-                    (limj > 0 ? loopJ < limj : loopJ >= limj)
-                ) {
-                    const dRow = state[loopI];
-                    if (dRow) {
-                        const dCell = dRow[loopJ];
-
-                        if (dCell.value == "") {
-                            moves.push({
-                                i: loopI,
-                                j: loopJ,
-                                capture: false,
-                            });
-                            loopI += iInc;
-                            loopJ += jInc;
-                        } else {
-                            if (dCell.color == not(cell.color)) {
-                                moves.push({
-                                    i: loopI,
-                                    j: loopJ,
-                                    capture: true,
-                                });
-                            }
-                            break;
-                        }
-                    }
-                }
-            });
-            let rowMoves: Move[] = [];
-            let colMoves: Move[] = [];
-            // for(let loopJ  = j;loopJ<8;loopJ++)
-            for (let loopJ = j - 1; loopJ >= 0; loopJ--) {
-                //////console.log("here1");
-                if (state[i][loopJ].color == cell.color) {
-                    break;
-                }
-                if (state[i][loopJ].color == not(cell.color)) {
-                    rowMoves.push({
-                        i,
-                        j: loopJ,
-                        capture: true,
-                    });
-                    break;
-                } else if (state[i][loopJ].color == "") {
-                    rowMoves.push({
-                        i,
-                        j: loopJ,
-                        capture: false,
-                    });
-                }
-            }
-            for (let loopJ = j + 1; loopJ < 8; loopJ++) {
-                //////console.log("here2");
-                if (state[i][loopJ].color == cell.color) {
-                    break;
-                    // rowMoves = [];
-                }
-                if (state[i][loopJ].color == not(cell.color)) {
-                    rowMoves.push({
-                        i,
-                        j: loopJ,
-                        capture: true,
-                    });
-                    break;
-                } else if (state[i][loopJ].color == "") {
-                    rowMoves.push({
-                        i,
-                        j: loopJ,
-                        capture: false,
-                    });
-                }
-            }
-            for (let loopI = i - 1; loopI > 0; loopI--) {
-                // //////console.log("behind");
-                //////console.log("here3");
-                if (state[loopI][j].color == cell.color) {
-                    break;
-                    // colMoves = [];
-                }
-                if (state[loopI][j].color == not(cell.color)) {
-                    colMoves.push({
-                        i: loopI,
-                        j,
-                        capture: true,
-                    });
-                    break;
-                } else if (state[loopI][j].color == "") {
-                    colMoves.push({
-                        i: loopI,
-                        j,
-                        capture: false,
-                    });
-                }
-            }
-            for (let loopI = i + 1; loopI < 8; loopI++) {
-                //////console.log("here4");
-                if (state[loopI][j].color == cell.color) {
-                    break;
-                }
-                if (state[loopI][j].color == not(cell.color)) {
-                    colMoves.push({
-                        i: loopI,
-                        j,
-                        capture: true,
-                    });
-                    break;
-                } else if (state[loopI][j].color == "") {
-                    colMoves.push({
-                        i: loopI,
-                        j,
-                        capture: false,
-                    });
-                }
-                // colMoves=[]
-            }
-            colMoves.forEach((c) => {
-                moves.push(c);
-            });
-            rowMoves.forEach((r) => {
-                moves.push(r);
-            });
-        }
-        if (cell.value == "B") {
-            [
-                {
-                    iInc: 1,
-                    jInc: 1,
-                    limi: 8,
-                    limj: 8,
-                },
-                {
-                    iInc: -1,
-                    jInc: 1,
-                    limi: 0,
-                    limj: 8,
-                },
-                {
-                    iInc: -1,
-                    jInc: -1,
-                    limi: 0,
-                    limj: 0,
-                },
-                {
-                    iInc: 1,
-                    jInc: -1,
-                    limi: 8,
-                    limj: 0,
-                },
-            ].forEach((incs) => {
-                const { iInc, jInc, limi, limj } = incs;
-                let loopI = i + iInc;
-                let loopJ = j + jInc;
-                while (
-                    (limi > 0 ? loopI < limi : loopI >= limi) &&
-                    (limj > 0 ? loopJ < limj : loopJ >= limj)
-                ) {
-                    const dRow = state[loopI];
-                    if (dRow) {
-                        const dCell = dRow[loopJ];
-
-                        if (dCell.value == "") {
-                            moves.push({
-                                i: loopI,
-                                j: loopJ,
-                                capture: false,
-                            });
-                            loopI += iInc;
-                            loopJ += jInc;
-                        } else {
-                            if (dCell.color == not(cell.color)) {
-                                moves.push({
-                                    i: loopI,
-                                    j: loopJ,
-                                    capture: true,
-                                });
-                            }
-                            break;
-                        }
-                    }
-                }
-            });
-        }
-        if (cell.value == "K") {
-            for (let iINc = -1; iINc <= 1; iINc++) {
-                const dRow = state[i + iINc];
-                if (dRow) {
-                    for (let jInc = -1; jInc <= 1; jInc++) {
-                        const dCell = dRow[j + jInc];
-                        if (dCell && dCell.color !== cell.color) {
-                            moves.push({
-                                i: i + iINc,
-                                j: j + jInc,
-                                capture: dCell.color == not(cell.color),
-                            });
-                        }
-                    }
-                }
-            }
-        }
         // //////console.log(moves);
         // return moves;
+        const moves = findMovesNoSanitize(state, i, j, kingPos);
         return sanitizeMoves(state, moves, i, j, kingPos);
     }
     function checkCheck(
