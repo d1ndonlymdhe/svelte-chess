@@ -82,7 +82,7 @@
                 }
             }
         });
-        if (kp.i == KI && kp.j == 4) {
+        if (curI == KI && curJ == 4 && cell.value == "K") {
             let QCF = false;
             let KCF = false;
             let tempState: CellType[][] = [];
@@ -748,10 +748,11 @@
             );
             let moveSuccess = false;
             const dCell = state[selectedCell.i][selectedCell.j];
+            console.log("final moves = ", moves);
             moves.forEach((m) => {
                 if (m.i == i && m.j == j) {
                     state[i][j] = { ...state[selectedCell.i][selectedCell.j] };
-                    console.log("source cell = ", {... state[selectedCell.i][selectedCell.j]})
+                    // console.log("source cell = ", {... state[selectedCell.i][selectedCell.j]})
                     state[selectedCell.i][selectedCell.j] = {
                         cellBg: "plain",
                         color: "",

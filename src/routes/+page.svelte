@@ -16,6 +16,7 @@
     import "../app.css";
     let passantAble: Pos = { i: -1, j: -1 };
     let turn:Turn = "white";
+    // let prev: CellType[][];
     let state: CellType[][] = [
         [
             { color: "black", value: "R", cellBg: "plain" },
@@ -135,4 +136,5 @@
             {/each}
         </div>
     {/each}
+    
 </div>
