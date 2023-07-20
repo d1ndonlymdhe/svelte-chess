@@ -45,6 +45,13 @@
         ////console.log("moves to be sanitied = ", moves);
         // alert("cur cell="+curCell.value);
         console.log("checking moves");
+        //@ts-ignore
+
+        const kp = kingPos[curCell.color];
+        const KI = curCell.color == "black" ? 0 : 7;
+
+        // if(kingPos.i == curI && kingPos.)
+
         moves.forEach((m) => {
             let tempState: CellType[][] = [];
             state.forEach((r) => {
@@ -75,7 +82,38 @@
                 }
             }
         });
-
+        if (kp.i == KI && kp.j == 4) {
+            let QCF = false;
+            let KCF = false;
+            let tempState: CellType[][] = [];
+            state.forEach((r) => {
+                tempState.push([...r]);
+            });
+            if (kp.i == KI && kp.j == 4) {
+                for (let i = 0; i < retMoves.length; i++) {
+                    if (retMoves[i].i == KI && retMoves[i].j == 2) {
+                        QCF = true;
+                    }
+                    if (retMoves[i].i == KI && retMoves[i].j == 6) {
+                        KCF = true;
+                    }
+                }
+            }
+            let cloneRetMoves: Move[] = [];
+            retMoves.forEach((m) => {
+                if (!QCF) {
+                    if (m.i != KI || m.j != 2) {
+                        cloneRetMoves.push(m);
+                    }
+                }
+                if (!KCF) {
+                    if (m.i != KI || m.j != 6) {
+                        cloneRetMoves.push(m);
+                    }
+                }
+            });
+            retMoves = [...cloneRetMoves];
+        }
         ////console.log("retmoves = ", retMoves);
         return retMoves;
     }
@@ -545,32 +583,32 @@
                         QueenCastle = false;
                     }
                 }
-                if (kingCastle) {
-                    let tempState: CellType[][] = [];
-                    state.forEach((r) => {
-                        tempState.push([...r]);
-                    });
-                    tempState[KI][5] = {
-                        cellBg: "plain",
-                        color: cell.color,
-                        value: "K",
-                    };
-                    tempState[KI][5] = {
-                        cellBg: "plain",
-                        color: "",
-                        value: "",
-                    };
-                    let tKps = { ...kingPos };
-                    //@ts-ignore
-                    tKps[cell.color] = {
-                        i: KI,
-                        j: 5,
-                    };
-                    //@ts-ignore
-                    if (checkCheck(state, cell.color, tKps)) {
-                        kingCastle = false;
-                    }
-                }
+                // if (kingCastle) {
+                //     let tempState: CellType[][] = [];
+                //     state.forEach((r) => {
+                //         tempState.push([...r]);
+                //     });
+                //     tempState[KI][5] = {
+                //         cellBg: "plain",
+                //         color: cell.color,
+                //         value: "K",
+                //     };
+                //     tempState[KI][5] = {
+                //         cellBg: "plain",
+                //         color: "",
+                //         value: "",
+                //     };
+                //     let tKps = { ...kingPos };
+                //     //@ts-ignore
+                //     tKps[cell.color] = {
+                //         i: KI,
+                //         j: 5,
+                //     };
+                //     //@ts-ignore
+                //     if (checkCheck(state, cell.color, tKps)) {
+                //         kingCastle = false;
+                //     }
+                // }
                 if (QueenCastle) {
                     moves.push({
                         i: KI,
@@ -713,6 +751,7 @@
             moves.forEach((m) => {
                 if (m.i == i && m.j == j) {
                     state[i][j] = { ...state[selectedCell.i][selectedCell.j] };
+                    console.log("source cell = ", {... state[selectedCell.i][selectedCell.j]})
                     state[selectedCell.i][selectedCell.j] = {
                         cellBg: "plain",
                         color: "",
