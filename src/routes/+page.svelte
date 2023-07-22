@@ -8,21 +8,49 @@
         i: number;
         j: number;
     };
-    export type Turn = "white" | "black"
+    export type Turn = "white" | "black";
+    export type RookMoved = {
+        white: {
+            Q: boolean;
+            K: boolean;
+        };
+        black: {
+            Q: boolean;
+            K: boolean;
+        };
+    };
+    export type KingMoved = {
+        white: boolean;
+        black: boolean;
+    };
 </script>
 
 <script lang="ts">
     import Cell, { type CellBg } from "./Cell.svelte";
     import "../app.css";
     let passantAble: Pos = { i: -1, j: -1 };
-    let turn:Turn = "white";
+    let turn: Turn = "white";
+    let RookMoved = {
+        white: {
+            Q: false,
+            K: false,
+        },
+        black: {
+            Q: false,
+            K: false,
+        },
+    };
+    let KingMoved = {
+        white: false,
+        black: false,
+    };
     // let prev: CellType[][];
     let state: CellType[][] = [
         [
             { color: "black", value: "R", cellBg: "plain" },
             { color: "black", value: "H", cellBg: "plain" },
             { color: "black", value: "B", cellBg: "plain" },
-           
+
             { color: "black", value: "Q", cellBg: "plain" },
             { color: "black", value: "K", cellBg: "plain" },
             { color: "black", value: "B", cellBg: "plain" },
@@ -93,7 +121,6 @@
             { color: "white", value: "R", cellBg: "plain" },
             { color: "white", value: "H", cellBg: "plain" },
             { color: "white", value: "B", cellBg: "plain" },
-    
             { color: "white", value: "Q", cellBg: "plain" },
             { color: "white", value: "K", cellBg: "plain" },
             { color: "white", value: "B", cellBg: "plain" },
@@ -132,9 +159,10 @@
                     bind:selectedCell
                     bind:kingPos
                     bind:turn
+                    bind:KingMoved
+                    bind:RookMoved
                 />
             {/each}
         </div>
     {/each}
-    
 </div>

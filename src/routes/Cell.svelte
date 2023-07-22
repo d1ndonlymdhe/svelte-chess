@@ -9,11 +9,19 @@
 
 <script lang="ts">
     import "../app.css";
-    import type { CellType, Pos, Turn } from "./+page.svelte";
+    import type {
+        CellType,
+        KingMoved,
+        Pos,
+        RookMoved,
+        Turn,
+    } from "./+page.svelte";
     export let cell: CellType;
     export let i: number, j: number;
     export let state: CellType[][];
     export let turn: Turn;
+    export let KingMoved: KingMoved;
+    export let RookMoved: RookMoved;
     // export let passantee : Pos[];
     // export let passenter : Pos[];
     export let kingPos: {
@@ -42,9 +50,9 @@
     ) {
         let retMoves: Move[] = [];
         let curCell = state[curI][curJ];
-        ////console.log("moves to be sanitied = ", moves);
+        //////console.log("moves to be sanitied = ", moves);
         // alert("cur cell="+curCell.value);
-        console.log("checking moves");
+        //console.log("checking moves");
         //@ts-ignore
 
         const kp = kingPos[curCell.color];
@@ -83,38 +91,44 @@
             }
         });
         if (curI == KI && curJ == 4 && cell.value == "K") {
+            console.log("king moves = ", moves);
+            console.log("retMOves = ", retMoves);
             let QCF = false;
             let KCF = false;
+            let allowedCastle = [];
             let tempState: CellType[][] = [];
             state.forEach((r) => {
                 tempState.push([...r]);
             });
             if (kp.i == KI && kp.j == 4) {
                 for (let i = 0; i < retMoves.length; i++) {
-                    if (retMoves[i].i == KI && retMoves[i].j == 2) {
+                    if (retMoves[i].i == KI && retMoves[i].j == 3) {
                         QCF = true;
                     }
-                    if (retMoves[i].i == KI && retMoves[i].j == 6) {
+                    if (retMoves[i].i == KI && retMoves[i].j == 5) {
                         KCF = true;
                     }
                 }
             }
             let cloneRetMoves: Move[] = [];
+
             retMoves.forEach((m) => {
-                if (!QCF) {
-                    if (m.i != KI || m.j != 2) {
-                        cloneRetMoves.push(m);
+                if (m.i == KI && m.j == 2) {
+                    if (QCF) {
+                        cloneRetMoves.push({ ...m });
                     }
-                }
-                if (!KCF) {
-                    if (m.i != KI || m.j != 6) {
-                        cloneRetMoves.push(m);
+                } else if (m.i == KI && m.j == 6) {
+                    if (KCF) {
+                        cloneRetMoves.push({ ...m });
                     }
+                } else {
+                    cloneRetMoves.push({ ...m });
                 }
             });
+
             retMoves = [...cloneRetMoves];
         }
-        ////console.log("retmoves = ", retMoves);
+        //////console.log("retmoves = ", retMoves);
         return retMoves;
     }
     function findMovesNoSanitize(
@@ -124,12 +138,15 @@
         kingPos: {
             black: Pos;
             white: Pos;
-        }
+        },
+        kingMoved: KingMoved,
+        rookMoved: RookMoved
     ) {
+        // console.log("find moves no sanitize");
         const cell = state[i][j];
-        // //////console.log("cell = ",cell)
+
         const moves: Move[] = [];
-        if (cell.value == "") {
+        if (cell.value == "" || cell.color == "") {
             return moves;
         }
         if (cell.value == "P") {
@@ -143,7 +160,6 @@
                 });
                 goStraight = true;
             }
-            // //////console.log(cell.color == "black" ? 1 : 6);
             if (goStraight && i == (cell.color == "black" ? 1 : 6)) {
                 if (state[i + iInc * 2][j].value == "") {
                     moves.push({
@@ -153,7 +169,6 @@
                     });
                 }
             }
-            // if(state[])
 
             [1, -1].forEach((a) => {
                 if (
@@ -171,9 +186,7 @@
         if (cell.value == "R") {
             let rowMoves: Move[] = [];
             let colMoves: Move[] = [];
-            // for(let loopJ  = j;loopJ<8;loopJ++)
             for (let loopJ = j - 1; loopJ >= 0; loopJ--) {
-                // //////console.log("here1");
                 if (state[i][loopJ].color == cell.color) {
                     break;
                 }
@@ -193,10 +206,8 @@
                 }
             }
             for (let loopJ = j + 1; loopJ < 8; loopJ++) {
-                // //////console.log("here2");
                 if (state[i][loopJ].color == cell.color) {
                     break;
-                    // rowMoves = [];
                 }
                 if (state[i][loopJ].color == not(cell.color)) {
                     rowMoves.push({
@@ -214,11 +225,8 @@
                 }
             }
             for (let loopI = i - 1; loopI >= 0; loopI--) {
-                // //////console.log("behind");
-                // //////console.log("here3");
                 if (state[loopI][j].color == cell.color) {
                     break;
-                    // colMoves = [];
                 }
                 if (state[loopI][j].color == not(cell.color)) {
                     colMoves.push({
@@ -236,7 +244,6 @@
                 }
             }
             for (let loopI = i + 1; loopI < 8; loopI++) {
-                // //////console.log("here4");
                 if (state[loopI][j].color == cell.color) {
                     break;
                 }
@@ -254,7 +261,6 @@
                         capture: false,
                     });
                 }
-                // colMoves=[]
             }
             colMoves.forEach((c) => {
                 moves.push(c);
@@ -266,7 +272,7 @@
         if (cell.value == "H") {
             [2, -2].forEach((loopI) => {
                 [-1, 1].forEach((loopJ) => {
-                    // //////console.log(i + loopI, j + loopJ);
+                    // ////////console.log(i + loopI, j + loopJ);
                     const di = i + loopI;
                     const dj = j + loopJ;
                     const dRow = state[di];
@@ -284,7 +290,7 @@
             });
             [1, -1].forEach((loopI) => {
                 [-2, 2].forEach((loopJ) => {
-                    // //////console.log(i + loopI, j + loopJ);
+                    // ////////console.log(i + loopI, j + loopJ);
                     const di = i + loopI;
                     const dj = j + loopJ;
                     const dRow = state[di];
@@ -364,7 +370,7 @@
             let colMoves: Move[] = [];
             // for(let loopJ  = j;loopJ<8;loopJ++)
             for (let loopJ = j - 1; loopJ >= 0; loopJ--) {
-                //////console.log("here1");
+                ////////console.log("here1");
                 if (state[i][loopJ].color == cell.color) {
                     break;
                 }
@@ -384,7 +390,7 @@
                 }
             }
             for (let loopJ = j + 1; loopJ < 8; loopJ++) {
-                //////console.log("here2");
+                ////////console.log("here2");
                 if (state[i][loopJ].color == cell.color) {
                     break;
                     // rowMoves = [];
@@ -405,8 +411,8 @@
                 }
             }
             for (let loopI = i - 1; loopI >= 0; loopI--) {
-                // //////console.log("behind");
-                //////console.log("here3");
+                // ////////console.log("behind");
+                ////////console.log("here3");
                 if (state[loopI][j].color == cell.color) {
                     break;
                     // colMoves = [];
@@ -427,7 +433,7 @@
                 }
             }
             for (let loopI = i + 1; loopI < 8; loopI++) {
-                //////console.log("here4");
+                ////////console.log("here4");
                 if (state[loopI][j].color == cell.color) {
                     break;
                 }
@@ -530,104 +536,67 @@
                     }
                 }
             }
+            if (!kingMoved[cell.color]) {
+                const KI = cell.color == "black" ? 0 : 7;
+                // console.log("Cell color = ", cell.color);
+                let KingCell = state[KI][4];
+                // console.log("moves bf castling = ", moves);
+                if (i == KI && j == 4) {
+                    const RQJ = 0;
+                    const RKJ = 7;
 
-            const KI = cell.color == "black" ? 0 : 7;
-            let KingCell = state[KI][4];
-            if (i == KI && j == 4) {
-                const RQJ = 0;
-                const RKJ = 7;
-
-                let RookQCell = state[KI][RQJ];
-                let RookKCell = state[KI][RKJ];
-                let QueenCastle = true;
-                let kingCastle = true;
-                if (RookQCell.color == cell.color && RookQCell.value == "R") {
-                    for (let loopJ = 3; loopJ >= 1; loopJ--) {
-                        if (state[KI][loopJ].value !== "") {
-                            QueenCastle = false;
-                            break;
+                    let RookQCell = state[KI][RQJ];
+                    let RookKCell = state[KI][RKJ];
+                    let QueenCastle = true;
+                    let kingCastle = true;
+                    if (
+                        RookQCell.color == cell.color &&
+                        RookQCell.value == "R" &&
+                        !RookMoved[cell.color]["Q"]
+                    ) {
+                        for (let loopJ = 3; loopJ >= 1; loopJ--) {
+                            if (state[KI][loopJ].value !== "") {
+                                QueenCastle = false;
+                                break;
+                            }
                         }
-                    }
-                }
-                if (RookKCell.color == cell.color && RookKCell.value == "R") {
-                    for (let loopJ = 5; loopJ <= 6; loopJ++) {
-                        if (state[KI][loopJ].value !== "") {
-                            kingCastle = false;
-                            break;
-                        }
-                    }
-                }
-                if (QueenCastle) {
-                    let tempState: CellType[][] = [];
-                    state.forEach((r) => {
-                        tempState.push([...r]);
-                    });
-                    tempState[KI][3] = {
-                        cellBg: "plain",
-                        color: cell.color,
-                        value: "K",
-                    };
-                    tempState[KI][4] = {
-                        cellBg: "plain",
-                        color: "",
-                        value: "",
-                    };
-                    let tKps = { ...kingPos };
-                    //@ts-ignore
-                    tKps[cell.color] = {
-                        i: KI,
-                        j: 4,
-                    };
-                    //@ts-ignore
-                    if (checkCheck(state, cell.color, tKps)) {
+                    } else {
                         QueenCastle = false;
                     }
-                }
-                // if (kingCastle) {
-                //     let tempState: CellType[][] = [];
-                //     state.forEach((r) => {
-                //         tempState.push([...r]);
-                //     });
-                //     tempState[KI][5] = {
-                //         cellBg: "plain",
-                //         color: cell.color,
-                //         value: "K",
-                //     };
-                //     tempState[KI][5] = {
-                //         cellBg: "plain",
-                //         color: "",
-                //         value: "",
-                //     };
-                //     let tKps = { ...kingPos };
-                //     //@ts-ignore
-                //     tKps[cell.color] = {
-                //         i: KI,
-                //         j: 5,
-                //     };
-                //     //@ts-ignore
-                //     if (checkCheck(state, cell.color, tKps)) {
-                //         kingCastle = false;
-                //     }
-                // }
-                if (QueenCastle) {
-                    moves.push({
-                        i: KI,
-                        j: 2,
-                        capture: false,
-                    });
-                }
-                if (kingCastle) {
-                    moves.push({
-                        i: KI,
-                        j: 2,
-                        capture: false,
-                    });
+                    if (
+                        RookKCell.color == cell.color &&
+                        RookKCell.value == "R" &&
+                        !RookMoved[cell.color]["K"]
+                    ) {
+                        for (let loopJ = 5; loopJ <= 6; loopJ++) {
+                            if (state[KI][loopJ].value !== "") {
+                                kingCastle = false;
+                                break;
+                            }
+                        }
+                    } else {
+                        kingCastle = false;
+                    }
+
+                    // console.log("QC,KC", QueenCastle, kingCastle);
+                    if (QueenCastle) {
+                        moves.push({
+                            i: KI,
+                            j: 2,
+                            capture: false,
+                        });
+                    }
+                    if (kingCastle) {
+                        moves.push({
+                            i: KI,
+                            j: 6,
+                            capture: false,
+                        });
+                    }
                 }
             }
         }
-        // //////console.log(moves);
         return moves;
-        // return sanitizeMoves(state, moves, i, j, kingPos);
     }
     function findPossibleMoves(
         state: CellType[][],
@@ -636,11 +605,18 @@
         kingPos: {
             black: Pos;
             white: Pos;
-        }
+        },
+        kingMoved: KingMoved,
+        rookMoved: RookMoved
     ) {
-        // //////console.log(moves);
-        // return moves;
-        const moves = findMovesNoSanitize(state, i, j, kingPos);
+        const moves = findMovesNoSanitize(
+            state,
+            i,
+            j,
+            kingPos,
+            kingMoved,
+            rookMoved
+        );
         return sanitizeMoves(state, moves, i, j, kingPos);
     }
     function checkCheck(
@@ -655,33 +631,47 @@
         let check = false;
         // const enemyPos: Pos[] = [];
         //TODO make a system with piece count
-        //console.log("victim color = ",victimColor )
-        console.log("Check start");
+        ////console.log("victim color = ",victimColor )
+        //console.log("Check start");
 
         for (let loopI = 0; loopI < 8; loopI++) {
             for (let loopJ = 0; loopJ < 8; loopJ++) {
                 if (state[loopI][loopJ].color == not(victimColor)) {
-                    //////console.log("op color");
+                    ////////console.log("op color");
                     const moves = findMovesNoSanitize(
                         state,
                         loopI,
                         loopJ,
-                        kingPos
+                        kingPos,
+                        {
+                            black: true,
+                            white: true,
+                        },
+                        {
+                            black: {
+                                K: true,
+                                Q: true,
+                            },
+                            white: {
+                                K: true,
+                                Q: true,
+                            },
+                        }
                     );
-                    console.log("i,j = ", i, j);
-                    console.log("moves = ", moves);
+                    //console.log("i,j = ", i, j);
+                    //console.log("moves = ", moves);
                     check =
                         moves.filter((m) => {
                             return m.i == i && m.j == j && m.capture == true;
                         }).length !== 0;
                     if (check) {
-                        console.log("cehck end");
+                        //console.log("cehck end");
                         return true;
                     }
                 }
             }
         }
-        console.log("cehck end");
+        //console.log("cehck end");
         return false;
     }
     function checkmateCheck(
@@ -702,11 +692,23 @@
                             state,
                             i,
                             j,
-                            kingPos
+                            kingPos,
+                            {
+                                black: true,
+                                white: true,
+                            },
+                            {
+                                black: {
+                                    K: true,
+                                    Q: true,
+                                },
+                                white: {
+                                    K: true,
+                                    Q: true,
+                                },
+                            }
                         );
                         if (possibleMoves.length > 0) {
-                            console.log("move from = ", i, j);
-                            console.log("cm moves = ", possibleMoves);
                             return false;
                         }
                     }
@@ -738,29 +740,130 @@
     on:click={() => {
         if (selectedCell.i > -1 && selectedCell.j > -1) {
             //@ts-ignore
-            let vColor = not(state[selectedCell.i][selectedCell.j].color);
-            //console.log("color = ", vColor);
+            const sCell = state[selectedCell.i][selectedCell.j];
+            let vColor = not(sCell.color);
+            ////console.log("color = ", vColor);
             let moves = findPossibleMoves(
                 state,
                 selectedCell.i,
                 selectedCell.j,
-                kingPos
+                kingPos,
+                KingMoved,
+                RookMoved
             );
             let moveSuccess = false;
             const dCell = state[selectedCell.i][selectedCell.j];
-            console.log("final moves = ", moves);
-            moves.forEach((m) => {
-                if (m.i == i && m.j == j) {
-                    state[i][j] = { ...state[selectedCell.i][selectedCell.j] };
-                    // console.log("source cell = ", {... state[selectedCell.i][selectedCell.j]})
-                    state[selectedCell.i][selectedCell.j] = {
-                        cellBg: "plain",
-                        color: "",
-                        value: "",
-                    };
-                    moveSuccess = true;
-                }
-            });
+            const KI = sCell.color == "black" ? 0 : 7;
+            if (
+                selectedCell.i == KI &&
+                selectedCell.j == 4 &&
+                sCell.value == "K"
+            ) {
+                moves.forEach((m) => {
+                    if (m.i == KI) {
+                        if (j == 2) {
+                            console.log("Queen Castle");
+                            state[KI][2] = {
+                                value: "K",
+                                cellBg: "plain",
+                                color: sCell.color,
+                            };
+                            state[i][3] = {
+                                value: "R",
+                                cellBg: "plain",
+                                color: sCell.color,
+                            };
+                            state[i][0] = {
+                                value: "",
+                                cellBg: "plain",
+                                color: "",
+                            };
+                            state[KI][4] = {
+                                value: "",
+                                cellBg: "plain",
+                                color: "",
+                            };
+                            //@ts-ignore
+                            KingMoved[sCell.color] = true;
+                            moveSuccess = true;
+                            //@ts-ignore
+                            RookMoved[sCell.color]["Q"] = true;
+
+                            // break;
+                        } else if (j == 6) {
+                            console.log("King Castle");
+                            state[KI][6] = {
+                                value: "K",
+                                cellBg: "plain",
+                                color: sCell.color,
+                            };
+                            state[i][5] = {
+                                value: "R",
+                                cellBg: "plain",
+                                color: sCell.color,
+                            };
+                            state[i][7] = {
+                                value: "",
+                                cellBg: "plain",
+                                color: "",
+                            };
+                            state[KI][4] = {
+                                value: "",
+                                cellBg: "plain",
+                                color: "",
+                            };
+                            moveSuccess = true;
+                            //@ts-ignore
+                            KingMoved[sCell.color] = true;
+                            //@ts-ignore
+                            RookMoved[sCell.color]["Q"] = true;
+
+                            // break;
+                        }
+                    } else if (m.i == i && m.j == j) {
+                        state[i][j] = {
+                            ...state[selectedCell.i][selectedCell.j],
+                        };
+                        state[selectedCell.i][selectedCell.j] = {
+                            cellBg: "plain",
+                            color: "",
+                            value: "",
+                        };
+                        moveSuccess = true;
+                        //@ts-ignore
+                        KingMoved[sCell.color] = true;
+
+                        // break;
+                    }
+                });
+            } else {
+                //if not king in castle position
+                moves.forEach((m) => {
+                    if (m.i == i && m.j == j) {
+                        state[i][j] = {
+                            ...state[selectedCell.i][selectedCell.j],
+                        };
+                        // //console.log("source cell = ", {... state[selectedCell.i][selectedCell.j]})
+                        state[selectedCell.i][selectedCell.j] = {
+                            cellBg: "plain",
+                            color: "",
+                            value: "",
+                        };
+                        if (sCell.color != "") {
+                            if (sCell.value == "K") {
+                                KingMoved[sCell.color] = true;
+                            }
+                            if(sCell.value == "R" && selectedCell.j == 0){
+                                RookMoved[sCell.color]["Q"] = true;
+                            }
+                            if(sCell.value == "R" && selectedCell.j == 7){
+                                RookMoved[sCell.color]["K"] = true;
+                            }
+                        }
+                        moveSuccess = true;
+                    }
+                });
+            }
             if (moveSuccess) {
                 let x = not(turn);
                 if (x != "") {
@@ -792,13 +895,16 @@
                 };
                 normalizeState(state);
             } else {
-                // selectedCell = {
-                //     i: -1,
-                //     j: -1,
-                // };
                 if (turn == state[i][j].color) {
                     normalizeState(state);
-                    let moves = findPossibleMoves(state, i, j, kingPos);
+                    let moves = findPossibleMoves(
+                        state,
+                        i,
+                        j,
+                        kingPos,
+                        KingMoved,
+                        RookMoved
+                    );
                     moves.forEach((m) => {
                         state[m.i][m.j].cellBg = m.capture ? "capture" : "move";
                     });
@@ -810,8 +916,16 @@
             }
         } else {
             if (turn == state[i][j].color) {
+                console.log("normalizing");
                 normalizeState(state);
-                let moves = findPossibleMoves(state, i, j, kingPos);
+                let moves = findPossibleMoves(
+                    state,
+                    i,
+                    j,
+                    kingPos,
+                    KingMoved,
+                    RookMoved
+                );
                 moves.forEach((m) => {
                     state[m.i][m.j].cellBg = m.capture ? "capture" : "move";
                 });
