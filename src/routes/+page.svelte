@@ -23,12 +23,15 @@
         white: boolean;
         black: boolean;
     };
+    export type Passantable = {
+        white: Pos | undefined;
+        black: Pos | undefined;
+    };
 </script>
 
 <script lang="ts">
     import Cell, { type CellBg } from "./Cell.svelte";
     import "../app.css";
-    let passantAble: Pos = { i: -1, j: -1 };
     let turn: Turn = "white";
     let RookMoved = {
         white: {
@@ -43,6 +46,10 @@
     let KingMoved = {
         white: false,
         black: false,
+    };
+    let passantAble: Passantable = {
+        black: undefined,
+        white: undefined,
     };
     // let prev: CellType[][];
     let state: CellType[][] = [
@@ -161,6 +168,7 @@
                     bind:turn
                     bind:KingMoved
                     bind:RookMoved
+                    bind:passantAble
                 />
             {/each}
         </div>

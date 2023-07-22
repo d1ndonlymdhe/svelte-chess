@@ -12,6 +12,7 @@
     import type {
         CellType,
         KingMoved,
+        Passantable,
         Pos,
         RookMoved,
         Turn,
@@ -22,8 +23,8 @@
     export let turn: Turn;
     export let KingMoved: KingMoved;
     export let RookMoved: RookMoved;
-    // export let passantee : Pos[];
-    // export let passenter : Pos[];
+    export let passantAble: Passantable;
+
     export let kingPos: {
         black: Pos;
         white: Pos;
@@ -50,16 +51,9 @@
     ) {
         let retMoves: Move[] = [];
         let curCell = state[curI][curJ];
-        //////console.log("moves to be sanitied = ", moves);
-        // alert("cur cell="+curCell.value);
-        //console.log("checking moves");
         //@ts-ignore
-
         const kp = kingPos[curCell.color];
         const KI = curCell.color == "black" ? 0 : 7;
-
-        // if(kingPos.i == curI && kingPos.)
-
         moves.forEach((m) => {
             let tempState: CellType[][] = [];
             state.forEach((r) => {
@@ -95,7 +89,6 @@
             console.log("retMOves = ", retMoves);
             let QCF = false;
             let KCF = false;
-            let allowedCastle = [];
             let tempState: CellType[][] = [];
             state.forEach((r) => {
                 tempState.push([...r]);
@@ -168,6 +161,34 @@
                         capture: false,
                     });
                 }
+            }
+            const cellI = cell.color == "black" ? 4 : 3;
+            if (i == cellI) {
+                const cellLeft = state[cellI][j - 1];
+                const cellRight = state[cellI][j + 1];
+                const tArr = [];
+
+                if (cellLeft) {
+                    tArr.push(-1);
+                }
+                if (cellRight) {
+                    tArr.push(1);
+                }
+                tArr.forEach((t) => {
+                    const opColor = not(cell.color);
+                    if (opColor != "") {
+                        const passant = passantAble[opColor];
+                        if (passant) {
+                            if (passant.i == cellI && passant.j == j + t) {
+                                moves.push({
+                                    i: cellI == 3 ? 2 : 5,
+                                    j: passant.j,
+                                    capture: true,
+                                });
+                            }
+                        }
+                    }
+                });
             }
 
             [1, -1].forEach((a) => {
@@ -541,7 +562,7 @@
                 // console.log("Cell color = ", cell.color);
                 let KingCell = state[KI][4];
                 // console.log("moves bf castling = ", moves);
-                if (i == KI && j == 4) {
+                if (i == KI && j == 4 && !KingMoved[cell.color]) {
                     const RQJ = 0;
                     const RKJ = 7;
 
@@ -629,11 +650,7 @@
     ) {
         const { i, j } = kingPos[victimColor];
         let check = false;
-        // const enemyPos: Pos[] = [];
         //TODO make a system with piece count
-        ////console.log("victim color = ",victimColor )
-        //console.log("Check start");
-
         for (let loopI = 0; loopI < 8; loopI++) {
             for (let loopJ = 0; loopJ < 8; loopJ++) {
                 if (state[loopI][loopJ].color == not(victimColor)) {
@@ -658,20 +675,16 @@
                             },
                         }
                     );
-                    //console.log("i,j = ", i, j);
-                    //console.log("moves = ", moves);
                     check =
                         moves.filter((m) => {
                             return m.i == i && m.j == j && m.capture == true;
                         }).length !== 0;
                     if (check) {
-                        //console.log("cehck end");
                         return true;
                     }
                 }
             }
         }
-        //console.log("cehck end");
         return false;
     }
     function checkmateCheck(
@@ -715,7 +728,6 @@
                 }
             }
         }
-
         return true;
     }
     function not(cellColor: "white" | "black" | "") {
@@ -843,20 +855,42 @@
                         state[i][j] = {
                             ...state[selectedCell.i][selectedCell.j],
                         };
-                        // //console.log("source cell = ", {... state[selectedCell.i][selectedCell.j]})
                         state[selectedCell.i][selectedCell.j] = {
                             cellBg: "plain",
                             color: "",
                             value: "",
                         };
+                        if (sCell.value == "P") {
+                            //@ts-ignore
+                            const passant = passantAble[vColor];
+                            if (passant) {
+                                if (
+                                    passant.i == selectedCell.i &&
+                                    passant.j == j
+                                ) {
+                                    state[passant.i][passant.j] = {
+                                        cellBg: "plain",
+                                        color: "",
+                                        value: "",
+                                    };
+                                }
+                            }
+                            if (Math.abs(i - selectedCell.i) == 2) {
+                                //@ts-ignore
+                                passantAble[sCell.color] = {
+                                    i,
+                                    j,
+                                };
+                            }
+                        }
                         if (sCell.color != "") {
                             if (sCell.value == "K") {
                                 KingMoved[sCell.color] = true;
                             }
-                            if(sCell.value == "R" && selectedCell.j == 0){
+                            if (sCell.value == "R" && selectedCell.j == 0) {
                                 RookMoved[sCell.color]["Q"] = true;
                             }
-                            if(sCell.value == "R" && selectedCell.j == 7){
+                            if (sCell.value == "R" && selectedCell.j == 7) {
                                 RookMoved[sCell.color]["K"] = true;
                             }
                         }
@@ -889,6 +923,11 @@
                 ) {
                     alert("Checkmate");
                 }
+                //@ts-ignore
+                passantAble[vColor] = {
+                    black: undefined,
+                    white: undefined,
+                };
                 selectedCell = {
                     i: -1,
                     j: -1,
