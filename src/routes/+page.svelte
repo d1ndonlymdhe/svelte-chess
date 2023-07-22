@@ -159,28 +159,38 @@
     };
 </script>
 
-<div class={`absolute w-screen h-screen flex justify-center items-center z-30`}>
-    <div
-        class={`${
-            promotion ? "flex" : "hidden"
-        } w-fit h-fit  flex-col px-4 py-2 bg-slate-600 rounded-md`}
-    >
+<div
+    class={`${
+        promotion ? "flex" : "hidden"
+    } absolute w-screen h-screen  justify-center items-center z-30`}
+>
+    <div class={`flex w-fit h-fit  flex-col px-4 py-2 bg-slate-600 rounded-md`}>
         <div class="text-4xl w-full text-center">PROMOTE TO:</div>
         <div class="flex flex-row gap-4">
             {#each ["q", "r", "b", "h"] as V}
                 <button
                     on:click={() => {
-                        if(promotePos.i>-1 && promotePos.j>1){
-                            // const p
-                            // state[promotePos]
+                        if (promotePos.i > -1 && promotePos.j > -1) {
+                            const color = promotePos.i == 7 ? "black" : "white";
+                            state[promotePos.i][promotePos.j] = {
+                                value: V.toUpperCase(),
+                                cellBg: "plain",
+                                color,
+                            };
                         }
-                        
                         promotion = false;
+                        promotePos = {
+                            i: -1,
+                            j: -1,
+                        };
                     }}
                 >
                     <img
                         alt={`${V}|${"black"}`}
-                        src={`/images/${"black".toLocaleLowerCase()}_${V}.png`}
+                        src={`/images/${(promotePos.i == 7
+                            ? "black"
+                            : "white"
+                        ).toLocaleLowerCase()}_${V}.png`}
                     />
                 </button>
             {/each}
