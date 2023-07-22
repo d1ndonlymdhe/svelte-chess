@@ -51,6 +51,11 @@
         black: undefined,
         white: undefined,
     };
+    let promotion = false;
+    let promotePos = {
+        i: -1,
+        j: -1,
+    };
     // let prev: CellType[][];
     let state: CellType[][] = [
         [
@@ -154,6 +159,34 @@
     };
 </script>
 
+<div class={`absolute w-screen h-screen flex justify-center items-center z-30`}>
+    <div
+        class={`${
+            promotion ? "flex" : "hidden"
+        } w-fit h-fit  flex-col px-4 py-2 bg-slate-600 rounded-md`}
+    >
+        <div class="text-4xl w-full text-center">PROMOTE TO:</div>
+        <div class="flex flex-row gap-4">
+            {#each ["q", "r", "b", "h"] as V}
+                <button
+                    on:click={() => {
+                        if(promotePos.i>-1 && promotePos.j>1){
+                            // const p
+                            // state[promotePos]
+                        }
+                        
+                        promotion = false;
+                    }}
+                >
+                    <img
+                        alt={`${V}|${"black"}`}
+                        src={`/images/${"black".toLocaleLowerCase()}_${V}.png`}
+                    />
+                </button>
+            {/each}
+        </div>
+    </div>
+</div>
 <div class="grid grid-rows-[repeat(8,1fr)] w-[100vh] h-[100vh]">
     {#each state as row, i}
         <div class="grid grid-cols-[repeat(8,1fr)]">
@@ -169,6 +202,8 @@
                     bind:KingMoved
                     bind:RookMoved
                     bind:passantAble
+                    bind:promotion
+                    bind:promotePos
                 />
             {/each}
         </div>

@@ -24,7 +24,8 @@
     export let KingMoved: KingMoved;
     export let RookMoved: RookMoved;
     export let passantAble: Passantable;
-
+    export let promotion:boolean;
+    export let promotePos:Pos;
     export let kingPos: {
         black: Pos;
         white: Pos;
@@ -989,8 +990,8 @@
             cellBg == "capture" ? "block" : "hidden"
         }`}
     />
+    
     {#if cell.color || cell.value}
-        <!-- {cell.color}|{cell.value} -->
         <div class="flex justify-center items-center">
             <img
                 alt={`${cell.color}|${cell.value}`}
