@@ -3,6 +3,7 @@
         value: string;
         color: "black" | "white" | "";
         cellBg: CellBg;
+        prevPos: Pos;
     };
     export type Pos = {
         i: number;
@@ -26,6 +27,10 @@
     export type Passantable = {
         white: Pos | undefined;
         black: Pos | undefined;
+    };
+    export type Animate = {
+        from: Pos;
+        to: Pos;
     };
 </script>
 
@@ -56,90 +61,255 @@
         i: -1,
         j: -1,
     };
+    let animateable: Animate[] = [];
     // let prev: CellType[][];
     let state: CellType[][] = [
         [
-            { color: "black", value: "R", cellBg: "plain" },
-            { color: "black", value: "H", cellBg: "plain" },
-            { color: "black", value: "B", cellBg: "plain" },
-
-            { color: "black", value: "Q", cellBg: "plain" },
-            { color: "black", value: "K", cellBg: "plain" },
-            { color: "black", value: "B", cellBg: "plain" },
-            { color: "black", value: "H", cellBg: "plain" },
-            { color: "black", value: "R", cellBg: "plain" },
+            {
+                color: "black",
+                value: "R",
+                cellBg: "plain",
+                prevPos: { i: 0, j: 0 },
+            },
+            {
+                color: "black",
+                value: "H",
+                cellBg: "plain",
+                prevPos: { i: 0, j: 1 },
+            },
+            {
+                color: "black",
+                value: "B",
+                cellBg: "plain",
+                prevPos: { i: 0, j: 2 },
+            },
+            {
+                color: "black",
+                value: "Q",
+                cellBg: "plain",
+                prevPos: { i: 0, j: 3 },
+            },
+            {
+                color: "black",
+                value: "K",
+                cellBg: "plain",
+                prevPos: { i: 0, j: 4 },
+            },
+            {
+                color: "black",
+                value: "B",
+                cellBg: "plain",
+                prevPos: { i: 0, j: 5 },
+            },
+            {
+                color: "black",
+                value: "H",
+                cellBg: "plain",
+                prevPos: { i: 0, j: 6 },
+            },
+            {
+                color: "black",
+                value: "R",
+                cellBg: "plain",
+                prevPos: { i: 0, j: 7 },
+            },
         ],
         [
-            { color: "black", value: "P", cellBg: "plain" },
-            { color: "black", value: "P", cellBg: "plain" },
-            { color: "black", value: "P", cellBg: "plain" },
-            { color: "black", value: "P", cellBg: "plain" },
-            { color: "black", value: "P", cellBg: "plain" },
-            { color: "black", value: "P", cellBg: "plain" },
-            { color: "black", value: "P", cellBg: "plain" },
-            { color: "black", value: "P", cellBg: "plain" },
+            {
+                color: "black",
+                value: "P",
+                cellBg: "plain",
+                prevPos: { i: 1, j: 0 },
+            },
+            {
+                color: "black",
+                value: "P",
+                cellBg: "plain",
+                prevPos: { i: 1, j: 1 },
+            },
+            {
+                color: "black",
+                value: "P",
+                cellBg: "plain",
+                prevPos: { i: 1, j: 2 },
+            },
+            {
+                color: "black",
+                value: "P",
+                cellBg: "plain",
+                prevPos: { i: 1, j: 3 },
+            },
+            {
+                color: "black",
+                value: "P",
+                cellBg: "plain",
+                prevPos: { i: 1, j: 4 },
+            },
+            {
+                color: "black",
+                value: "P",
+                cellBg: "plain",
+                prevPos: { i: 1, j: 5 },
+            },
+            {
+                color: "black",
+                value: "P",
+                cellBg: "plain",
+                prevPos: { i: 1, j: 6 },
+            },
+            {
+                color: "black",
+                value: "P",
+                cellBg: "plain",
+                prevPos: { i: 1, j: 7 },
+            },
         ],
         [
-            { color: "", value: "", cellBg: "plain" },
-            { color: "", value: "", cellBg: "plain" },
-            { color: "", value: "", cellBg: "plain" },
-            { color: "", value: "", cellBg: "plain" },
-            { color: "", value: "", cellBg: "plain" },
-            { color: "", value: "", cellBg: "plain" },
-            { color: "", value: "", cellBg: "plain" },
-            { color: "", value: "", cellBg: "plain" },
+            { color: "", value: "", cellBg: "plain", prevPos: { i: 2, j: 0 } },
+            { color: "", value: "", cellBg: "plain", prevPos: { i: 2, j: 1 } },
+            { color: "", value: "", cellBg: "plain", prevPos: { i: 2, j: 2 } },
+            { color: "", value: "", cellBg: "plain", prevPos: { i: 2, j: 3 } },
+            { color: "", value: "", cellBg: "plain", prevPos: { i: 2, j: 4 } },
+            { color: "", value: "", cellBg: "plain", prevPos: { i: 2, j: 5 } },
+            { color: "", value: "", cellBg: "plain", prevPos: { i: 2, j: 6 } },
+            { color: "", value: "", cellBg: "plain", prevPos: { i: 2, j: 7 } },
         ],
         [
-            { color: "", value: "", cellBg: "plain" },
-            { color: "", value: "", cellBg: "plain" },
-            { color: "", value: "", cellBg: "plain" },
-            { color: "", value: "", cellBg: "plain" },
-            { color: "", value: "", cellBg: "plain" },
-            { color: "", value: "", cellBg: "plain" },
-            { color: "", value: "", cellBg: "plain" },
-            { color: "", value: "", cellBg: "plain" },
+            { color: "", value: "", cellBg: "plain", prevPos: { i: 3, j: 0 } },
+            { color: "", value: "", cellBg: "plain", prevPos: { i: 3, j: 1 } },
+            { color: "", value: "", cellBg: "plain", prevPos: { i: 3, j: 2 } },
+            { color: "", value: "", cellBg: "plain", prevPos: { i: 3, j: 3 } },
+            { color: "", value: "", cellBg: "plain", prevPos: { i: 3, j: 4 } },
+            { color: "", value: "", cellBg: "plain", prevPos: { i: 3, j: 5 } },
+            { color: "", value: "", cellBg: "plain", prevPos: { i: 3, j: 6 } },
+            { color: "", value: "", cellBg: "plain", prevPos: { i: 3, j: 7 } },
         ],
         [
-            { color: "", value: "", cellBg: "plain" },
-            { color: "", value: "", cellBg: "plain" },
-            { color: "", value: "", cellBg: "plain" },
-            { color: "", value: "", cellBg: "plain" },
-            { color: "", value: "", cellBg: "plain" },
-            { color: "", value: "", cellBg: "plain" },
-            { color: "", value: "", cellBg: "plain" },
-            { color: "", value: "", cellBg: "plain" },
+            { color: "", value: "", cellBg: "plain", prevPos: { i: 4, j: 0 } },
+            { color: "", value: "", cellBg: "plain", prevPos: { i: 4, j: 1 } },
+            { color: "", value: "", cellBg: "plain", prevPos: { i: 4, j: 2 } },
+            { color: "", value: "", cellBg: "plain", prevPos: { i: 4, j: 3 } },
+            { color: "", value: "", cellBg: "plain", prevPos: { i: 4, j: 4 } },
+            { color: "", value: "", cellBg: "plain", prevPos: { i: 4, j: 5 } },
+            { color: "", value: "", cellBg: "plain", prevPos: { i: 4, j: 6 } },
+            { color: "", value: "", cellBg: "plain", prevPos: { i: 4, j: 7 } },
         ],
         [
-            { color: "", value: "", cellBg: "plain" },
-            { color: "", value: "", cellBg: "plain" },
-            { color: "", value: "", cellBg: "plain" },
-            { color: "", value: "", cellBg: "plain" },
-            { color: "", value: "", cellBg: "plain" },
-            { color: "", value: "", cellBg: "plain" },
-            { color: "", value: "", cellBg: "plain" },
-            { color: "", value: "", cellBg: "plain" },
+            { color: "", value: "", cellBg: "plain", prevPos: { i: 5, j: 0 } },
+            { color: "", value: "", cellBg: "plain", prevPos: { i: 5, j: 1 } },
+            { color: "", value: "", cellBg: "plain", prevPos: { i: 5, j: 2 } },
+            { color: "", value: "", cellBg: "plain", prevPos: { i: 5, j: 3 } },
+            { color: "", value: "", cellBg: "plain", prevPos: { i: 5, j: 4 } },
+            { color: "", value: "", cellBg: "plain", prevPos: { i: 5, j: 5 } },
+            { color: "", value: "", cellBg: "plain", prevPos: { i: 5, j: 6 } },
+            { color: "", value: "", cellBg: "plain", prevPos: { i: 5, j: 7 } },
         ],
         [
-            { color: "white", value: "P", cellBg: "plain" },
-            { color: "white", value: "P", cellBg: "plain" },
-            { color: "white", value: "P", cellBg: "plain" },
-            { color: "white", value: "P", cellBg: "plain" },
-            { color: "white", value: "P", cellBg: "plain" },
-            { color: "white", value: "P", cellBg: "plain" },
-            { color: "white", value: "P", cellBg: "plain" },
-            { color: "white", value: "P", cellBg: "plain" },
+            {
+                color: "white",
+                value: "P",
+                cellBg: "plain",
+                prevPos: { i: 6, j: 0 },
+            },
+            {
+                color: "white",
+                value: "P",
+                cellBg: "plain",
+                prevPos: { i: 6, j: 1 },
+            },
+            {
+                color: "white",
+                value: "P",
+                cellBg: "plain",
+                prevPos: { i: 6, j: 2 },
+            },
+            {
+                color: "white",
+                value: "P",
+                cellBg: "plain",
+                prevPos: { i: 6, j: 3 },
+            },
+            {
+                color: "white",
+                value: "P",
+                cellBg: "plain",
+                prevPos: { i: 6, j: 4 },
+            },
+            {
+                color: "white",
+                value: "P",
+                cellBg: "plain",
+                prevPos: { i: 6, j: 5 },
+            },
+            {
+                color: "white",
+                value: "P",
+                cellBg: "plain",
+                prevPos: { i: 6, j: 6 },
+            },
+            {
+                color: "white",
+                value: "P",
+                cellBg: "plain",
+                prevPos: { i: 6, j: 7 },
+            },
         ],
         [
-            { color: "white", value: "R", cellBg: "plain" },
-            { color: "white", value: "H", cellBg: "plain" },
-            { color: "white", value: "B", cellBg: "plain" },
-            { color: "white", value: "Q", cellBg: "plain" },
-            { color: "white", value: "K", cellBg: "plain" },
-            { color: "white", value: "B", cellBg: "plain" },
-            { color: "white", value: "H", cellBg: "plain" },
-            { color: "white", value: "R", cellBg: "plain" },
+            {
+                color: "white",
+                value: "R",
+                cellBg: "plain",
+                prevPos: { i: 7, j: 0 },
+            },
+            {
+                color: "white",
+                value: "H",
+                cellBg: "plain",
+                prevPos: { i: 7, j: 1 },
+            },
+            {
+                color: "white",
+                value: "B",
+                cellBg: "plain",
+                prevPos: { i: 7, j: 2 },
+            },
+            {
+                color: "white",
+                value: "Q",
+                cellBg: "plain",
+                prevPos: { i: 7, j: 3 },
+            },
+            {
+                color: "white",
+                value: "K",
+                cellBg: "plain",
+                prevPos: { i: 7, j: 4 },
+            },
+            {
+                color: "white",
+                value: "B",
+                cellBg: "plain",
+                prevPos: { i: 7, j: 5 },
+            },
+            {
+                color: "white",
+                value: "H",
+                cellBg: "plain",
+                prevPos: { i: 7, j: 6 },
+            },
+            {
+                color: "white",
+                value: "R",
+                cellBg: "plain",
+                prevPos: { i: 7, j: 7 },
+            },
         ],
     ];
+    const immutState: CellType[][] = [];
+    state.forEach((r) => {
+        immutState.push([...r]);
+    });
+    // console.log(immutState);
     let kingPos = {
         black: {
             i: 0,
@@ -176,6 +346,10 @@
                                 value: V.toUpperCase(),
                                 cellBg: "plain",
                                 color,
+                                prevPos: {
+                                    i: promotePos.i,
+                                    j: promotePos.j,
+                                },
                             };
                         }
                         promotion = false;
@@ -214,6 +388,7 @@
                     bind:passantAble
                     bind:promotion
                     bind:promotePos
+                    {immutState}
                 />
             {/each}
         </div>

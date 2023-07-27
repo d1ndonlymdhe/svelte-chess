@@ -17,6 +17,7 @@
         RookMoved,
         Turn,
     } from "./+page.svelte";
+    export let immutState: CellType[][];
     export let cell: CellType;
     export let i: number, j: number;
     export let state: CellType[][];
@@ -65,6 +66,10 @@
                 cellBg: "plain",
                 color: "",
                 value: "",
+                prevPos: {
+                    i: curI,
+                    j: curJ,
+                },
             };
 
             if (curCell.color !== "") {
@@ -146,9 +151,8 @@
         if (cell.value == "P") {
             let iInc = cell.color == "white" ? -1 : +1;
             let goStraight = false;
-            let row = state[i+iInc];
-            if(row){
-
+            let row = state[i + iInc];
+            if (row) {
                 if (row[j].value == "") {
                     moves.push({
                         i: i + iInc,
@@ -197,12 +201,9 @@
             }
 
             [1, -1].forEach((a) => {
-                let row = state[i+iInc];
-                if(row){
-                    if (
-                        row[j + a] &&
-                        row[j + a].color == not(cell.color)
-                    ) {
+                let row = state[i + iInc];
+                if (row) {
+                    if (row[j + a] && row[j + a].color == not(cell.color)) {
                         moves.push({
                             i: i + iInc,
                             j: j + a,
@@ -759,13 +760,13 @@
 <button
     on:click={() => {
         if (selectedCell.i > -1 && selectedCell.j > -1) {
-            console.log(!promotion)
+            console.log(!promotion);
             if (!promotion) {
                 //@ts-ignore
                 const sCell = state[selectedCell.i][selectedCell.j];
                 let vColor = not(sCell.color);
                 ////console.log("color = ", vColor);
-                console.log("selected = ",selectedCell)
+                console.log("selected = ", selectedCell);
 
                 let moves = findPossibleMoves(
                     state,
@@ -780,10 +781,9 @@
                 const KI = sCell.color == "black" ? 0 : 7;
                 if (
                     selectedCell.i == KI &&
-                    selectedCell.j == 4 && 
-                    i == KI && (
-                        j == 2 || j == 6
-                    ) 
+                    selectedCell.j == 4 &&
+                    i == KI &&
+                    (j == 2 || j == 6)
                 ) {
                     console.log("Here castle");
                     moves.forEach((m) => {
@@ -794,21 +794,37 @@
                                     value: "K",
                                     cellBg: "plain",
                                     color: sCell.color,
+                                    prevPos: {
+                                        i: KI,
+                                        j: 4,
+                                    },
                                 };
                                 state[i][3] = {
                                     value: "R",
                                     cellBg: "plain",
                                     color: sCell.color,
+                                    prevPos: {
+                                        i: KI,
+                                        j: 0,
+                                    },
                                 };
                                 state[i][0] = {
                                     value: "",
                                     cellBg: "plain",
                                     color: "",
+                                    prevPos: {
+                                        i: i,
+                                        j: 0,
+                                    },
                                 };
                                 state[KI][4] = {
                                     value: "",
                                     cellBg: "plain",
                                     color: "",
+                                    prevPos: {
+                                        i: KI,
+                                        j: 4,
+                                    },
                                 };
                                 //@ts-ignore
                                 KingMoved[sCell.color] = true;
@@ -823,21 +839,37 @@
                                     value: "K",
                                     cellBg: "plain",
                                     color: sCell.color,
+                                    prevPos: {
+                                        i: KI,
+                                        j: 4,
+                                    },
                                 };
                                 state[i][5] = {
                                     value: "R",
                                     cellBg: "plain",
                                     color: sCell.color,
+                                    prevPos: {
+                                        i: KI,
+                                        j: 7,
+                                    },
                                 };
                                 state[i][7] = {
                                     value: "",
                                     cellBg: "plain",
                                     color: "",
+                                    prevPos: {
+                                        i: i,
+                                        j: 7,
+                                    },
                                 };
                                 state[KI][4] = {
                                     value: "",
                                     cellBg: "plain",
                                     color: "",
+                                    prevPos: {
+                                        i: KI,
+                                        j: 4,
+                                    },
                                 };
                                 moveSuccess = true;
                                 //@ts-ignore
@@ -850,11 +882,19 @@
                         } else if (m.i == i && m.j == j) {
                             state[i][j] = {
                                 ...state[selectedCell.i][selectedCell.j],
+                                prevPos: {
+                                    i: selectedCell.i,
+                                    j: selectedCell.j,
+                                },
                             };
                             state[selectedCell.i][selectedCell.j] = {
                                 cellBg: "plain",
                                 color: "",
                                 value: "",
+                                prevPos: {
+                                    i: selectedCell.i,
+                                    j: selectedCell.j,
+                                },
                             };
                             moveSuccess = true;
                             //@ts-ignore
@@ -869,17 +909,25 @@
                         if (m.i == i && m.j == j) {
                             state[i][j] = {
                                 ...state[selectedCell.i][selectedCell.j],
+                                prevPos: {
+                                    i: selectedCell.i,
+                                    j: selectedCell.j,
+                                },
                             };
                             state[selectedCell.i][selectedCell.j] = {
                                 cellBg: "plain",
                                 color: "",
                                 value: "",
+                                prevPos: {
+                                    i: selectedCell.i,
+                                    j: selectedCell.j,
+                                },
                             };
                             if (sCell.value == "P") {
                                 //@ts-ignore
                                 const passant = passantAble[vColor];
                                 const promoteI = sCell.color == "black" ? 7 : 0;
-                                console.log(promoteI)
+                                console.log(promoteI);
                                 if (i == promoteI) {
                                     promotion = true;
                                     promotePos = {
@@ -896,6 +944,10 @@
                                             cellBg: "plain",
                                             color: "",
                                             value: "",
+                                            prevPos: {
+                                                i: passant.i,
+                                                j: passant.j,
+                                            },
                                         };
                                     }
                                 }
@@ -1017,13 +1069,16 @@
         }`}
     />
 
-    {#if cell.color || cell.value}
-        <div class="flex justify-center items-center">
+    {#if immutState[i][j].color || immutState[i][j].value}
+        <div
+            style={`transform: translate(${(cell.prevPos.j - j) * 25/2}vh, ${(cell.prevPos.i - i) * 25/2}vh)`}
+            class={`flex justify-center items-center duration-100`}
+        >
             <img
-                alt={`${cell.color}|${cell.value}`}
+                alt={`${immutState[i][j].color}|${immutState[i][j].value}`}
                 src={`/images/${
-                    cell.color
-                }_${cell.value.toLocaleLowerCase()}.png`}
+                    immutState[i][j].color
+                }_${immutState[i][j].value.toLocaleLowerCase()}.png`}
             />
         </div>
     {/if}
