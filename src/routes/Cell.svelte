@@ -765,6 +765,8 @@
                 const sCell = state[selectedCell.i][selectedCell.j];
                 let vColor = not(sCell.color);
                 ////console.log("color = ", vColor);
+                console.log("selected = ",selectedCell)
+
                 let moves = findPossibleMoves(
                     state,
                     selectedCell.i,
@@ -778,9 +780,12 @@
                 const KI = sCell.color == "black" ? 0 : 7;
                 if (
                     selectedCell.i == KI &&
-                    selectedCell.j == 4 &&
-                    sCell.value == "K"
+                    selectedCell.j == 4 && 
+                    i == KI && (
+                        j == 2 || j == 6
+                    ) 
                 ) {
+                    console.log("Here castle");
                     moves.forEach((m) => {
                         if (m.i == KI) {
                             if (j == 2) {
