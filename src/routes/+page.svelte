@@ -388,7 +388,6 @@
                     bind:passantAble
                     bind:promotion
                     bind:promotePos
-                    {immutState}
                 />
             {/each}
         </div>

@@ -8,6 +8,8 @@
 </script>
 
 <script lang="ts">
+    import { afterUpdate, onMount } from "svelte";
+
     import "../app.css";
     import type {
         CellType,
@@ -17,7 +19,8 @@
         RookMoved,
         Turn,
     } from "./+page.svelte";
-    export let immutState: CellType[][];
+    import { slide } from "svelte/transition";
+    // export let immutState: CellType[][];
     export let cell: CellType;
     export let i: number, j: number;
     export let state: CellType[][];
@@ -36,6 +39,52 @@
         j: number;
     };
     // export let readyToMove:boolean;
+    // $: {
+    //     console.log("prev pos  = ", cell.prevPos);
+    // }
+    let slideX = 0;
+    let slideY = 0;
+    let reset = false;
+    // afterUpdate(() => {
+    //     console.log("Mounted");
+    //     slideX = state[i][j].prevPos.j - j;
+    //     slideY = state[i][j].prevPos.i - i;
+    //     state[i][j].prevPos = {
+    //         i,
+    //         j,
+    //     };
+    // });
+
+    $: {
+        slideX = state[i][j].prevPos.j - j;
+        slideY = state[i][j].prevPos.i - i;
+        state[i][j].prevPos = {
+            i,
+            j,
+        };
+    }
+
+    // $: {
+    //     if (!reset) {
+    //         slideX = state[i][j].prevPos.j - j;
+    //         slideY = state[i][j].prevPos.i - i;
+    //     }
+    // }
+    $: {
+        console.log("slide = ", slideX, slideY);
+        if (slideX != 0 || slideY != 0) {
+            setTimeout(() => {
+                console.log("Timeout");
+                slideX = 0;
+                slideY = 0;
+            }, 0);
+            // reset = true;
+            // state[i][j].prevPos = {
+            //     i,
+            //     j,
+            // };
+        }
+    }
 
     $: cellBg = state[i][j].cellBg;
     const bgColor =
@@ -748,9 +797,13 @@
         return cellColor;
     }
     function normalizeState(state: CellType[][]) {
-        state.forEach((row) => {
-            row.forEach((cell) => {
+        state.forEach((row, i) => {
+            row.forEach((cell, j) => {
                 cell.cellBg = "plain";
+                // cell.prevPos = {
+                //     i,
+                //     j,
+                // };
             });
         });
         state = state;
@@ -1069,16 +1122,18 @@
         }`}
     />
 
-    {#if immutState[i][j].color || immutState[i][j].value}
+    {#if cell.color || cell.value}
         <div
-            style={`transform: translate(${(cell.prevPos.j - j) * 25/2}vh, ${(cell.prevPos.i - i) * 25/2}vh)`}
-            class={`flex justify-center items-center duration-100`}
+            style={`transform: translate(${(slideX * 25) / 2}vh, ${
+                (slideY * 25) / 2
+            }vh)`}
+            class={`flex justify-center items-center duration-200`}
         >
             <img
-                alt={`${immutState[i][j].color}|${immutState[i][j].value}`}
+                alt={`${cell.color}|${cell.value}`}
                 src={`/images/${
-                    immutState[i][j].color
-                }_${immutState[i][j].value.toLocaleLowerCase()}.png`}
+                    cell.color
+                }_${cell.value.toLocaleLowerCase()}.png`}
             />
         </div>
     {/if}
