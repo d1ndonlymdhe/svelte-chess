@@ -4,7 +4,7 @@
         j: number;
         capture: boolean;
     };
-    export type CellBg = "plain" | "move" | "capture";
+    export type CellBg = "plain" | "move" | "capture" | "prev" | "moved" | "check";
 </script>
 
 <script lang="ts">
@@ -19,7 +19,6 @@
         RookMoved,
         Turn,
     } from "./+page.svelte";
-    import { slide } from "svelte/transition";
     // export let immutState: CellType[][];
     export let cell: CellType;
     export let i: number, j: number;
@@ -62,6 +61,7 @@
             i,
             j,
         };
+        // let { i: prevI, j: prevJ } = state[i][j].prevPos;
     }
 
     // $: {
@@ -71,10 +71,8 @@
     //     }
     // }
     $: {
-        console.log("slide = ", slideX, slideY);
         if (slideX != 0 || slideY != 0) {
             setTimeout(() => {
-                console.log("Timeout");
                 slideX = 0;
                 slideY = 0;
             }, 0);
@@ -796,31 +794,48 @@
         }
         return cellColor;
     }
-    function normalizeState(state: CellType[][]) {
+    function normalizeState(state: CellType[][], clearPrev: boolean) {
+        // const plains: Pos[] = [];
+        // console.log("normalizing = ", state);
+        const prevs: Pos[] = [];
+        const moved: Pos[] = [];
         state.forEach((row, i) => {
             row.forEach((cell, j) => {
-                cell.cellBg = "plain";
-                // cell.prevPos = {
-                //     i,
-                //     j,
-                // };
+                if (cell.prevPos.i != i || cell.prevPos.j != j) {
+                    prevs.push({
+                        i: cell.prevPos.i,
+                        j: cell.prevPos.j,
+                    });
+                    moved.push({
+                        i,
+                        j,
+                    });
+                } else {
+                    if (cell.cellBg == "prev" || cell.cellBg == "moved") {
+                        if (clearPrev) {
+                            cell.cellBg = "plain";
+                        }
+                    } else [(cell.cellBg = "plain")];
+                }
             });
         });
-        state = state;
+        prevs.forEach((p) => {
+            state[p.i][p.j].cellBg = "prev";
+        });
+        moved.forEach((m)=>{
+            state[m.i][m.j].cellBg = "moved"
+        })
+        // state = state;
     }
 </script>
 
 <button
     on:click={() => {
         if (selectedCell.i > -1 && selectedCell.j > -1) {
-            console.log(!promotion);
             if (!promotion) {
                 //@ts-ignore
                 const sCell = state[selectedCell.i][selectedCell.j];
                 let vColor = not(sCell.color);
-                ////console.log("color = ", vColor);
-                console.log("selected = ", selectedCell);
-
                 let moves = findPossibleMoves(
                     state,
                     selectedCell.i,
@@ -838,11 +853,9 @@
                     i == KI &&
                     (j == 2 || j == 6)
                 ) {
-                    console.log("Here castle");
                     moves.forEach((m) => {
                         if (m.i == KI) {
                             if (j == 2) {
-                                console.log("Queen Castle");
                                 state[KI][2] = {
                                     value: "K",
                                     cellBg: "plain",
@@ -887,7 +900,6 @@
 
                                 // break;
                             } else if (j == 6) {
-                                console.log("King Castle");
                                 state[KI][6] = {
                                     value: "K",
                                     cellBg: "plain",
@@ -1041,7 +1053,6 @@
                             };
                         }
                     }
-
                     if (
                         checkmateCheck(
                             state,
@@ -1061,10 +1072,12 @@
                         i: -1,
                         j: -1,
                     };
-                    normalizeState(state);
+                    // console.log("state before normalize = ",state);
+                    normalizeState(state, true);
                 } else {
                     if (turn == state[i][j].color) {
-                        normalizeState(state);
+                        console.log("ignore 2");
+                        normalizeState(state, false);
                         let moves = findPossibleMoves(
                             state,
                             i,
@@ -1087,8 +1100,9 @@
             }
         } else {
             if (turn == state[i][j].color) {
-                console.log("normalizing");
-                normalizeState(state);
+                // console.log("normalizing");
+                console.log("ignore");
+                normalizeState(state, false);
                 let moves = findPossibleMoves(
                     state,
                     i,
@@ -1121,7 +1135,23 @@
             cellBg == "capture" ? "block" : "hidden"
         }`}
     />
-
+    <div
+        class={`absolute w-full h-full  opacity-40 top-0 left-0  ${
+            cellBg == "prev" ? "flex justify-center items-center" : "hidden"
+        }`}
+    >
+        <div class="w-full h-full scale-50 bg-blue-700 rounded-full" />
+    </div>
+    <div
+        class={`absolute w-full h-full  opacity-40 top-0 left-0  ${
+            cellBg == "moved" ? "flex justify-center items-center" : "hidden"
+        }`}
+    >
+        <div class="relative w-full h-full flex justify-center">
+            <div class="absolute w-[20%] h-full bg-blue-700 rotate-45" />
+            <div class="absolute w-[20%] h-full bg-blue-700 -rotate-45" />
+        </div>
+    </div>
     {#if cell.color || cell.value}
         <div
             style={`transform: translate(${(slideX * 25) / 2}vh, ${
