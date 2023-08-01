@@ -4,7 +4,13 @@
         j: number;
         capture: boolean;
     };
-    export type CellBg = "plain" | "move" | "capture" | "prev" | "moved" | "check";
+    export type CellBg =
+        | "plain"
+        | "move"
+        | "capture"
+        | "prev"
+        | "moved"
+        | "check";
 </script>
 
 <script lang="ts">
@@ -815,16 +821,20 @@
                         if (clearPrev) {
                             cell.cellBg = "plain";
                         }
-                    } else [(cell.cellBg = "plain")];
+                    } else {
+                        if(cell.cellBg != "check"){
+                            cell.cellBg = "plain"
+                        }
+                    }
                 }
             });
         });
         prevs.forEach((p) => {
             state[p.i][p.j].cellBg = "prev";
         });
-        moved.forEach((m)=>{
-            state[m.i][m.j].cellBg = "moved"
-        })
+        moved.forEach((m) => {
+            state[m.i][m.j].cellBg = "moved";
+        });
         // state = state;
     }
 </script>
@@ -1053,15 +1063,25 @@
                             };
                         }
                     }
-                    if (
-                        checkmateCheck(
-                            state,
-                            //@ts-ignore
-                            vColor,
-                            kingPos
-                        )
-                    ) {
-                        alert("Checkmate");
+                    if (vColor == "black" || vColor == "white") {
+                        let cc = checkCheck(state, vColor, kingPos);
+                        console.log("check = ", cc);
+                        if (cc) {
+                            const { i, j } = kingPos[vColor];
+                            console.log(i, j);
+                            state[i][j].cellBg = "check";
+                            console.log(state[i][j].cellBg);
+                            if (
+                                checkmateCheck(
+                                    state,
+                                    //@ts-ignore
+                                    vColor,
+                                    kingPos
+                                )
+                            ) {
+                                alert("Checkmate");
+                            }
+                        }
                     }
                     //@ts-ignore
                     passantAble[vColor] = {
@@ -1133,6 +1153,11 @@
     <div
         class={`absolute w-full h-full bg-red-500 opacity-40 top-0 left-0  ${
             cellBg == "capture" ? "block" : "hidden"
+        }`}
+    />
+    <div
+        class={`absolute w-full h-full bg-yellow-600 opacity-40 top-0 left-0  ${
+            cell.cellBg == "check" ? "block" : "hidden"
         }`}
     />
     <div
