@@ -16,7 +16,7 @@
 <script lang="ts">
     import { afterUpdate, onMount } from "svelte";
 
-    import "../app.css";
+    import "../../app.css";
     import type {
         CellType,
         KingMoved,
