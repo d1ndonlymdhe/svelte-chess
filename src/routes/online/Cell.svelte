@@ -50,164 +50,12 @@
         // state = state;
         return state;
     }
-</script>
-
-<script lang="ts">
-    import "../../app.css";
-    import type {
-        CellType,
-        KingMoved,
-        Passantable,
-        Pos,
-        RookMoved,
-        Turn,
-    } from "./+page.svelte";
-    import type { WsMsg } from "./RoomsInit.svelte";
-    import { Event } from "./RoomsInit.svelte";
-    // export let immutState: CellType[][];
-    export let ws: WebSocket;
-    export let cell: CellType;
-    export let i: number, j: number;
-    export let state: CellType[][];
-    export let turn: Turn;
-    export let KingMoved: KingMoved;
-    export let RookMoved: RookMoved;
-    export let passantAble: Passantable;
-    export let promotion: boolean;
-    export let promotePos: Pos;
-    export let kingPos: {
-        black: Pos;
-        white: Pos;
-    };
-    export let SELF: string;
-    export let roomCode: string;
-    export let selectedCell: {
-        i: number;
-        j: number;
-    };
-
-    let slideX = 0;
-    let slideY = 0;
-
-    $: {
-        slideX = state[i][j].prevPos.j - j;
-        slideY = state[i][j].prevPos.i - i;
-        state[i][j].prevPos = {
-            i,
-            j,
-        };
-    }
-    $: {
-        if (slideX != 0 || slideY != 0) {
-            setTimeout(() => {
-                slideX = 0;
-                slideY = 0;
-            }, 0);
-        }
-    }
-
-    $: cellBg = state[i][j].cellBg;
-    const bgColor =
-        i % 2 == 0 ? (j % 2 == 0 ? "w" : "b") : j % 2 == 0 ? "b" : "w";
-
-    function sanitizeMoves(
-        state: CellType[][],
-        moves: Move[],
-        curI: number,
-        curJ: number,
-        kingPos: {
-            black: Pos;
-            white: Pos;
-        }
-    ) {
-        let retMoves: Move[] = [];
-        let curCell = state[curI][curJ];
-        //@ts-ignore
-        const kp = kingPos[curCell.color];
-        const KI = curCell.color == "black" ? 0 : 7;
-        moves.forEach((m) => {
-            let tempState: CellType[][] = [];
-            state.forEach((r) => {
-                tempState.push([...r]);
-            });
-            tempState[m.i][m.j] = { ...curCell };
-            tempState[curI][curJ] = {
-                cellBg: "plain",
-                color: "",
-                value: "",
-                prevPos: {
-                    i: curI,
-                    j: curJ,
-                },
-            };
-
-            if (curCell.color !== "") {
-                if (curCell.value == "K") {
-                    let tKps = { ...kingPos };
-                    tKps[curCell.color] = {
-                        i: m.i,
-                        j: m.j,
-                    };
-
-                    if (!checkCheck(tempState, curCell.color, tKps)) {
-                        retMoves.push({ ...m });
-                    }
-                } else {
-                    if (!checkCheck(tempState, curCell.color, kingPos)) {
-                        retMoves.push({ ...m });
-                    }
-                }
-            }
-        });
-        if (curI == KI && curJ == 4 && cell.value == "K") {
-            console.log("king moves = ", moves);
-            console.log("retMOves = ", retMoves);
-            let QCF = false;
-            let KCF = false;
-            let tempState: CellType[][] = [];
-            state.forEach((r) => {
-                tempState.push([...r]);
-            });
-            if (kp.i == KI && kp.j == 4) {
-                for (let i = 0; i < retMoves.length; i++) {
-                    if (retMoves[i].i == KI && retMoves[i].j == 3) {
-                        QCF = true;
-                    }
-                    if (retMoves[i].i == KI && retMoves[i].j == 5) {
-                        KCF = true;
-                    }
-                }
-            }
-            let cloneRetMoves: Move[] = [];
-
-            retMoves.forEach((m) => {
-                if (m.i == KI && m.j == 2) {
-                    if (QCF) {
-                        cloneRetMoves.push({ ...m });
-                    }
-                } else if (m.i == KI && m.j == 6) {
-                    if (KCF) {
-                        cloneRetMoves.push({ ...m });
-                    }
-                } else {
-                    cloneRetMoves.push({ ...m });
-                }
-            });
-
-            retMoves = [...cloneRetMoves];
-        }
-        //////console.log("retmoves = ", retMoves);
-        return retMoves;
-    }
-    function findMovesNoSanitize(
+    export function findMovesNoSanitize(
         state: CellType[][],
         i: number,
         j: number,
-        kingPos: {
-            black: Pos;
-            white: Pos;
-        },
         kingMoved: KingMoved,
+        passantAble: Passantable,
         rookMoved: RookMoved
     ) {
         // console.log("find moves no sanitize");
@@ -642,7 +490,7 @@
                 // console.log("Cell color = ", cell.color);
                 let KingCell = state[KI][4];
                 // console.log("moves bf castling = ", moves);
-                if (i == KI && j == 4 && !KingMoved[cell.color]) {
+                if (i == KI && j == 4 && !kingMoved[cell.color]) {
                     const RQJ = 0;
                     const RKJ = 7;
 
@@ -653,7 +501,7 @@
                     if (
                         RookQCell.color == cell.color &&
                         RookQCell.value == "R" &&
-                        !RookMoved[cell.color]["Q"]
+                        !rookMoved[cell.color]["Q"]
                     ) {
                         for (let loopJ = 3; loopJ >= 1; loopJ--) {
                             if (state[KI][loopJ].value !== "") {
@@ -667,7 +515,7 @@
                     if (
                         RookKCell.color == cell.color &&
                         RookKCell.value == "R" &&
-                        !RookMoved[cell.color]["K"]
+                        !rookMoved[cell.color]["K"]
                     ) {
                         for (let loopJ = 5; loopJ <= 6; loopJ++) {
                             if (state[KI][loopJ].value !== "") {
@@ -699,7 +547,117 @@
         }
         return moves;
     }
-    function findPossibleMoves(
+    export function not(cellColor: "white" | "black" | "") {
+        if (cellColor == "white") {
+            return "black";
+        } else if (cellColor == "black") {
+            return "white";
+        }
+        return cellColor;
+    }
+
+    export function sanitizeMoves(
+        state: CellType[][],
+        moves: Move[],
+        curI: number,
+        curJ: number,
+        kingPos: {
+            black: Pos;
+            white: Pos;
+        },
+        passantAble: Passantable,
+        // cell: CellType
+    ) {
+        let retMoves: Move[] = [];
+        let curCell = state[curI][curJ];
+        //@ts-ignore
+        const kp = kingPos[curCell.color];
+        const KI = curCell.color == "black" ? 0 : 7;
+        moves.forEach((m) => {
+            let tempState: CellType[][] = [];
+            state.forEach((r) => {
+                tempState.push([...r]);
+            });
+            tempState[m.i][m.j] = { ...curCell };
+            tempState[curI][curJ] = {
+                cellBg: "plain",
+                color: "",
+                value: "",
+                prevPos: {
+                    i: curI,
+                    j: curJ,
+                },
+            };
+
+            if (curCell.color !== "") {
+                if (curCell.value == "K") {
+                    let tKps = { ...kingPos };
+                    tKps[curCell.color] = {
+                        i: m.i,
+                        j: m.j,
+                    };
+
+                    if (
+                        !checkCheck(tempState, curCell.color, tKps, passantAble)
+                    ) {
+                        retMoves.push({ ...m });
+                    }
+                } else {
+                    if (
+                        !checkCheck(
+                            tempState,
+                            curCell.color,
+                            kingPos,
+                            passantAble
+                        )
+                    ) {
+                        retMoves.push({ ...m });
+                    }
+                }
+            }
+        });
+        if (curI == KI && curJ == 4 && curCell.value == "K") {
+            console.log("king moves = ", moves);
+            console.log("retMOves = ", retMoves);
+            let QCF = false;
+            let KCF = false;
+            let tempState: CellType[][] = [];
+            state.forEach((r) => {
+                tempState.push([...r]);
+            });
+            if (kp.i == KI && kp.j == 4) {
+                for (let i = 0; i < retMoves.length; i++) {
+                    if (retMoves[i].i == KI && retMoves[i].j == 3) {
+                        QCF = true;
+                    }
+                    if (retMoves[i].i == KI && retMoves[i].j == 5) {
+                        KCF = true;
+                    }
+                }
+            }
+            let cloneRetMoves: Move[] = [];
+
+            retMoves.forEach((m) => {
+                if (m.i == KI && m.j == 2) {
+                    if (QCF) {
+                        cloneRetMoves.push({ ...m });
+                    }
+                } else if (m.i == KI && m.j == 6) {
+                    if (KCF) {
+                        cloneRetMoves.push({ ...m });
+                    }
+                } else {
+                    cloneRetMoves.push({ ...m });
+                }
+            });
+
+            retMoves = [...cloneRetMoves];
+        }
+        //////console.log("retmoves = ", retMoves);
+        return retMoves;
+    }
+
+    export function findPossibleMoves(
         state: CellType[][],
         i: number,
         j: number,
@@ -708,27 +666,32 @@
             white: Pos;
         },
         kingMoved: KingMoved,
-        rookMoved: RookMoved
+        rookMoved: RookMoved,
+        passantAble: Passantable,
+        // cell: CellType
     ) {
         const moves = findMovesNoSanitize(
             state,
             i,
             j,
-            kingPos,
             kingMoved,
+            passantAble,
             rookMoved
         );
         console.log("moves state = ", state);
         console.log("moves no sanitize = ", moves);
-        return sanitizeMoves(state, moves, i, j, kingPos);
+        return sanitizeMoves(state, moves, i, j, kingPos, passantAble);
+        // return sanitizeMoves(state, moves, i, j, kingPos, passantAble, cell);
+
     }
-    function checkCheck(
+    export function checkCheck(
         state: CellType[][],
         victimColor: "black" | "white",
         kingPos: {
             black: Pos;
             white: Pos;
-        }
+        },
+        passantAble: Passantable
     ) {
         const { i, j } = kingPos[victimColor];
         let check = false;
@@ -741,11 +704,11 @@
                         state,
                         loopI,
                         loopJ,
-                        kingPos,
                         {
                             black: true,
                             white: true,
                         },
+                        passantAble,
                         {
                             black: {
                                 K: true,
@@ -769,13 +732,14 @@
         }
         return false;
     }
-    function checkmateCheck(
+    export function checkmateCheck(
         state: CellType[][],
         victimColor: Turn,
         kingPos: {
             black: Pos;
             white: Pos;
-        }
+        },
+        passantAble: Passantable
     ) {
         for (let i = 0; i < 8; i++) {
             let row = state[i];
@@ -792,6 +756,7 @@
                                 black: true,
                                 white: true,
                             },
+
                             {
                                 black: {
                                     K: true,
@@ -801,7 +766,9 @@
                                     K: true,
                                     Q: true,
                                 },
-                            }
+                            },
+                            passantAble,
+                            // cell
                         );
                         if (possibleMoves.length > 0) {
                             return false;
@@ -812,16 +779,8 @@
         }
         return true;
     }
-    function not(cellColor: "white" | "black" | "") {
-        if (cellColor == "white") {
-            return "black";
-        } else if (cellColor == "black") {
-            return "white";
-        }
-        return cellColor;
-    }
 
-    function move(
+    export function move(
         state: CellType[][],
         selectedCell: Pos,
         i: number,
@@ -829,10 +788,15 @@
         KingMoved: KingMoved,
         RookMoved: RookMoved,
         passantAble: Passantable,
-        send: boolean
+        send: boolean,
+        kingPos: KingPos,
+        turn: Turn,
+        roomCode: string,
+        ws: WebSocket,
+        promotion: boolean,
+        promotePos: Pos,
+        // cell: CellType
     ) {
-        console.log("start state = ", state);
-        console.log("selected cell", selectedCell);
         const sCell = state[selectedCell.i][selectedCell.j];
         let vColor = not(sCell.color);
         let moves = findPossibleMoves(
@@ -841,7 +805,9 @@
             selectedCell.j,
             kingPos,
             KingMoved,
-            RookMoved
+            RookMoved,
+            passantAble,
+            // cell
         );
         let moveSuccess = false;
         const dCell = state[selectedCell.i][selectedCell.j];
@@ -1052,7 +1018,7 @@
                 }
             }
             if (vColor == "black" || vColor == "white") {
-                let cc = checkCheck(state, vColor, kingPos);
+                let cc = checkCheck(state, vColor, kingPos, passantAble);
                 console.log("check = ", cc);
                 if (cc) {
                     const { i, j } = kingPos[vColor];
@@ -1064,7 +1030,8 @@
                             state,
                             //@ts-ignore
                             vColor,
-                            kingPos
+                            kingPos,
+                            passantAble
                         )
                     ) {
                         alert("Checkmate");
@@ -1108,7 +1075,9 @@
                     j,
                     kingPos,
                     KingMoved,
-                    RookMoved
+                    RookMoved,
+                    passantAble,
+                    // cell
                 );
                 moves.forEach((m) => {
                     state[m.i][m.j].cellBg = m.capture ? "capture" : "move";
@@ -1120,8 +1089,68 @@
             }
         }
         console.log(state);
-        return {state,selectedCell}
+        return { state, selectedCell };
     }
+</script>
+
+<script lang="ts">
+    import "../../app.css";
+    import type {
+        CellType,
+        KingMoved,
+        KingPos,
+        Passantable,
+        Pos,
+        RookMoved,
+        Turn,
+    } from "./+page.svelte";
+    import type { WsMsg } from "./RoomsInit.svelte";
+    import { Event } from "./RoomsInit.svelte";
+    // export let immutState: CellType[][];
+    export let ws: WebSocket;
+    export let cell: CellType;
+    export let i: number, j: number;
+    export let state: CellType[][];
+    export let turn: Turn;
+    export let KingMoved: KingMoved;
+    export let RookMoved: RookMoved;
+    export let passantAble: Passantable;
+    export let promotion: boolean;
+    export let promotePos: Pos;
+    export let kingPos: {
+        black: Pos;
+        white: Pos;
+    };
+    export let SELF: string;
+    export let roomCode: string;
+    export let selectedCell: {
+        i: number;
+        j: number;
+    };
+
+    let slideX = 0;
+    let slideY = 0;
+
+    $: {
+        slideX = state[i][j].prevPos.j - j;
+        slideY = state[i][j].prevPos.i - i;
+        state[i][j].prevPos = {
+            i,
+            j,
+        };
+    }
+    $: {
+        if (slideX != 0 || slideY != 0) {
+            setTimeout(() => {
+                slideX = 0;
+                slideY = 0;
+            }, 0);
+        }
+    }
+
+    $: cellBg = state[i][j].cellBg;
+    const bgColor =
+        i % 2 == 0 ? (j % 2 == 0 ? "w" : "b") : j % 2 == 0 ? "b" : "w";
 </script>
 
 <button
@@ -1141,10 +1170,17 @@
                         KingMoved,
                         RookMoved,
                         passantAble,
-                        true
+                        true,
+                        kingPos,
+                        turn,
+                        roomCode,
+                        ws,
+                        promotion,
+                        promotePos,
+                        // cell
                     );
                     selectedCell = x.selectedCell;
-                    state = x.state
+                    state = x.state;
                 }
             } else {
                 if (turn == state[i][j].color) {
@@ -1157,7 +1193,9 @@
                         j,
                         kingPos,
                         KingMoved,
-                        RookMoved
+                        RookMoved,
+                        passantAble,
+                        // cell
                     );
                     moves.forEach((m) => {
                         state[m.i][m.j].cellBg = m.capture ? "capture" : "move";

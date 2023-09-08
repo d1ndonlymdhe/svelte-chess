@@ -21,7 +21,13 @@
 </script>
 
 <script lang="ts">
-    import type { CellType, KingMoved, Passantable, RookMoved, Turn } from "../offline/+page.svelte";
+    import type {
+        CellType,
+        KingMoved,
+        Passantable,
+        RookMoved,
+        Turn,
+    } from "../offline/+page.svelte";
     export let RoomJoinStatus: Status;
     export let RoomGenerateStatus: Status;
     export let OppStatus: Status;
@@ -32,11 +38,18 @@
     export let selfId: String = "";
     export let state: CellType[][];
     export let turn: Turn;
-   
+    export let kingMoved: KingMoved;
+    export let rookMoved: RookMoved;
+    export let passantAble: Passantable;
+    export let kingPos: KingPos;
+    export let promotion: boolean;
+    export let promotePos: Pos;
+    export let selectedCell:Pos;
+
     import "../../app.css";
-    
-    import { normalizeState } from "./Cell.svelte";
-    import type { Pos } from "./+page.svelte";
+
+    import { move, normalizeState } from "./Cell.svelte";
+    import type { KingPos, Pos } from "./+page.svelte";
     ws.onopen = () => {
         ws.onmessage = (res) => {
             const data = JSON.parse(res.data) as WsMsg<any>;
@@ -53,21 +66,24 @@
 
                     turn = SELF;
                     console.log(data.msg);
-                    
-                      
-                    state[k][l] = {
-                        ...state[i][j],
-                        prevPos: { i, j },
-                    };
-                    state[i][j] = {
-                        cellBg: "plain",
-                        color: "",
-                        value: "",
-                        prevPos: {
-                            i: i,
-                            j: j,
-                        },
-                    };
+                    let x = move(
+                        state,
+                        { i, j },
+                        k,
+                        l,
+                        kingMoved,
+                        rookMoved,
+                        passantAble,
+                        false,
+                        kingPos,
+                        turn,
+                        roomCode,
+                        ws,
+                        promotion,
+                        promotePos
+                    );
+                    state = x.state;
+                    selectedCell = x.selectedCell;
                     normalizeState(state, false);
                     break;
                 case Event.GameOver:
@@ -144,7 +160,6 @@
     function wsSend<T>(msg: WsMsg<T>) {
         ws.send(JSON.stringify(msg));
     }
-   
 </script>
 
 <div

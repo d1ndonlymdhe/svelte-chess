@@ -32,6 +32,10 @@
         from: Pos;
         to: Pos;
     };
+    export type KingPos = {
+        black:Pos,
+        white:Pos
+    }
 </script>
 
 <script lang="ts">
@@ -317,7 +321,7 @@
     state.forEach((r) => {
         immutState.push([...r]);
     });
-    let kingPos = {
+    let kingPos:KingPos = {
         black: {
             i: 0,
             j: 4,
@@ -327,6 +331,7 @@
             j: 4,
         },
     };
+    
     let selectedCell: {
         i: number;
         j: number;
@@ -348,6 +353,13 @@
         bind:selfId
         bind:state
         bind:turn
+        bind:kingMoved={KingMoved}
+        bind:rookMoved={RookMoved}
+        bind:passantAble
+        bind:kingPos
+        bind:promotion
+        bind:promotePos
+        bind:selectedCell
     />
     <div
         class={`${
