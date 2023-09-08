@@ -47,6 +47,7 @@
     let OppStatus: Status = Status.None;
     let turn: Turn = "white";
     let SELF: Turn = "white";
+    let selfId = "";
     let RookMoved = {
         white: {
             Q: false,
@@ -337,15 +338,16 @@
 
 <div class="relative">
     <RoomsInit
-        bind:RoomGenerateStatus
-        bind:joinRoomCode
-        bind:roomCode
         bind:RoomJoinStatus
+        bind:RoomGenerateStatus
         bind:OppStatus
+        bind:roomCode
+        bind:joinRoomCode
         bind:ws
         bind:SELF
-        bind:turn
+        bind:selfId
         bind:state
+        bind:turn
     />
     <div
         class={`${

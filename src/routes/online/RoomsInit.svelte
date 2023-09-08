@@ -21,8 +21,7 @@
 </script>
 
 <script lang="ts">
-    import type { CellType, Turn } from "../offline/+page.svelte";
-    export const prerender = false;
+    import type { CellType, KingMoved, Passantable, RookMoved, Turn } from "../offline/+page.svelte";
     export let RoomJoinStatus: Status;
     export let RoomGenerateStatus: Status;
     export let OppStatus: Status;
@@ -33,9 +32,11 @@
     export let selfId: String = "";
     export let state: CellType[][];
     export let turn: Turn;
+   
     import "../../app.css";
-    import Cell from "../offline/Cell.svelte";
+    
     import { normalizeState } from "./Cell.svelte";
+    import type { Pos } from "./+page.svelte";
     ws.onopen = () => {
         ws.onmessage = (res) => {
             const data = JSON.parse(res.data) as WsMsg<any>;
@@ -52,6 +53,8 @@
 
                     turn = SELF;
                     console.log(data.msg);
+                    
+                      
                     state[k][l] = {
                         ...state[i][j],
                         prevPos: { i, j },
@@ -141,6 +144,7 @@
     function wsSend<T>(msg: WsMsg<T>) {
         ws.send(JSON.stringify(msg));
     }
+   
 </script>
 
 <div

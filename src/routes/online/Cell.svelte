@@ -48,6 +48,7 @@
             state[m.i][m.j].cellBg = "moved";
         });
         // state = state;
+        return state;
     }
 </script>
 
@@ -210,9 +211,11 @@
         rookMoved: RookMoved
     ) {
         // console.log("find moves no sanitize");
+        console.log("find no sanitie i j ", i, j);
         const cell = state[i][j];
 
         const moves: Move[] = [];
+
         if (cell.value == "" || cell.color == "") {
             return moves;
         }
@@ -715,6 +718,8 @@
             kingMoved,
             rookMoved
         );
+        console.log("moves state = ", state);
+        console.log("moves no sanitize = ", moves);
         return sanitizeMoves(state, moves, i, j, kingPos);
     }
     function checkCheck(
@@ -824,8 +829,10 @@
         KingMoved: KingMoved,
         RookMoved: RookMoved,
         passantAble: Passantable,
-        send:boolean
+        send: boolean
     ) {
+        console.log("start state = ", state);
+        console.log("selected cell", selectedCell);
         const sCell = state[selectedCell.i][selectedCell.j];
         let vColor = not(sCell.color);
         let moves = findPossibleMoves(
@@ -962,6 +969,7 @@
             });
         } else {
             //if not king in castle position
+            console.log(moves);
             moves.forEach((m) => {
                 if (m.i == i && m.j == j) {
                     state[i][j] = {
@@ -1028,6 +1036,7 @@
                 }
             });
         }
+        console.log(moveSuccess);
         if (moveSuccess) {
             let x = not(turn);
             if (x != "") {
@@ -1088,11 +1097,11 @@
                 j: -1,
             };
             // console.log("state before normalize = ",state);
-            normalizeState(state, true);
+            state = normalizeState(state, true);
         } else {
             if (turn == state[i][j].color) {
                 console.log("ignore 2");
-                normalizeState(state, false);
+                state = normalizeState(state, false);
                 let moves = findPossibleMoves(
                     state,
                     i,
@@ -1110,314 +1119,38 @@
                 };
             }
         }
+        console.log(state);
+        return {state,selectedCell}
     }
 </script>
 
 <button
     on:click={() => {
         if (turn == SELF) {
+            console.log("selected check", selectedCell);
             if (selectedCell.i > -1 && selectedCell.j > -1) {
                 if (!promotion) {
                     //@ts-ignore
-                    const sCell = state[selectedCell.i][selectedCell.j];
-                    let vColor = not(sCell.color);
-                    let moves = findPossibleMoves(
+                    console.log("Moving");
+                    console.log("moving i j", i, j);
+                    let x = move(
                         state,
-                        selectedCell.i,
-                        selectedCell.j,
-                        kingPos,
+                        selectedCell,
+                        i,
+                        j,
                         KingMoved,
-                        RookMoved
+                        RookMoved,
+                        passantAble,
+                        true
                     );
-                    let moveSuccess = false;
-                    const dCell = state[selectedCell.i][selectedCell.j];
-                    const KI = sCell.color == "black" ? 0 : 7;
-                    if (
-                        selectedCell.i == KI &&
-                        selectedCell.j == 4 &&
-                        i == KI &&
-                        (j == 2 || j == 6)
-                    ) {
-                        moves.forEach((m) => {
-                            if (m.i == KI) {
-                                if (j == 2) {
-                                    state[KI][2] = {
-                                        value: "K",
-                                        cellBg: "plain",
-                                        color: sCell.color,
-                                        prevPos: {
-                                            i: KI,
-                                            j: 4,
-                                        },
-                                    };
-                                    state[i][3] = {
-                                        value: "R",
-                                        cellBg: "plain",
-                                        color: sCell.color,
-                                        prevPos: {
-                                            i: KI,
-                                            j: 0,
-                                        },
-                                    };
-                                    state[i][0] = {
-                                        value: "",
-                                        cellBg: "plain",
-                                        color: "",
-                                        prevPos: {
-                                            i: i,
-                                            j: 0,
-                                        },
-                                    };
-                                    state[KI][4] = {
-                                        value: "",
-                                        cellBg: "plain",
-                                        color: "",
-                                        prevPos: {
-                                            i: KI,
-                                            j: 4,
-                                        },
-                                    };
-                                    //@ts-ignore
-                                    KingMoved[sCell.color] = true;
-                                    moveSuccess = true;
-                                    //@ts-ignore
-                                    RookMoved[sCell.color]["Q"] = true;
-
-                                    // break;
-                                } else if (j == 6) {
-                                    state[KI][6] = {
-                                        value: "K",
-                                        cellBg: "plain",
-                                        color: sCell.color,
-                                        prevPos: {
-                                            i: KI,
-                                            j: 4,
-                                        },
-                                    };
-                                    state[i][5] = {
-                                        value: "R",
-                                        cellBg: "plain",
-                                        color: sCell.color,
-                                        prevPos: {
-                                            i: KI,
-                                            j: 7,
-                                        },
-                                    };
-                                    state[i][7] = {
-                                        value: "",
-                                        cellBg: "plain",
-                                        color: "",
-                                        prevPos: {
-                                            i: i,
-                                            j: 7,
-                                        },
-                                    };
-                                    state[KI][4] = {
-                                        value: "",
-                                        cellBg: "plain",
-                                        color: "",
-                                        prevPos: {
-                                            i: KI,
-                                            j: 4,
-                                        },
-                                    };
-                                    moveSuccess = true;
-                                    //@ts-ignore
-                                    KingMoved[sCell.color] = true;
-                                    //@ts-ignore
-                                    RookMoved[sCell.color]["Q"] = true;
-
-                                    // break;
-                                }
-                            } else if (m.i == i && m.j == j) {
-                                state[i][j] = {
-                                    ...state[selectedCell.i][selectedCell.j],
-                                    prevPos: {
-                                        i: selectedCell.i,
-                                        j: selectedCell.j,
-                                    },
-                                };
-                                state[selectedCell.i][selectedCell.j] = {
-                                    cellBg: "plain",
-                                    color: "",
-                                    value: "",
-                                    prevPos: {
-                                        i: selectedCell.i,
-                                        j: selectedCell.j,
-                                    },
-                                };
-                                moveSuccess = true;
-                                //@ts-ignore
-                                KingMoved[sCell.color] = true;
-
-                                // break;
-                            }
-                        });
-                    } else {
-                        //if not king in castle position
-                        moves.forEach((m) => {
-                            if (m.i == i && m.j == j) {
-                                state[i][j] = {
-                                    ...state[selectedCell.i][selectedCell.j],
-                                    prevPos: {
-                                        i: selectedCell.i,
-                                        j: selectedCell.j,
-                                    },
-                                };
-                                state[selectedCell.i][selectedCell.j] = {
-                                    cellBg: "plain",
-                                    color: "",
-                                    value: "",
-                                    prevPos: {
-                                        i: selectedCell.i,
-                                        j: selectedCell.j,
-                                    },
-                                };
-                                if (sCell.value == "P") {
-                                    //@ts-ignore
-                                    const passant = passantAble[vColor];
-                                    const promoteI =
-                                        sCell.color == "black" ? 7 : 0;
-                                    console.log(promoteI);
-                                    if (i == promoteI) {
-                                        promotion = true;
-                                        promotePos = {
-                                            i: i,
-                                            j: j,
-                                        };
-                                    }
-                                    if (passant) {
-                                        if (
-                                            passant.i == selectedCell.i &&
-                                            passant.j == j
-                                        ) {
-                                            state[passant.i][passant.j] = {
-                                                cellBg: "plain",
-                                                color: "",
-                                                value: "",
-                                                prevPos: {
-                                                    i: passant.i,
-                                                    j: passant.j,
-                                                },
-                                            };
-                                        }
-                                    }
-                                    if (Math.abs(i - selectedCell.i) == 2) {
-                                        //@ts-ignore
-                                        passantAble[sCell.color] = {
-                                            i,
-                                            j,
-                                        };
-                                    }
-                                }
-                                if (sCell.color != "") {
-                                    if (sCell.value == "K") {
-                                        KingMoved[sCell.color] = true;
-                                    }
-                                    if (
-                                        sCell.value == "R" &&
-                                        selectedCell.j == 0
-                                    ) {
-                                        RookMoved[sCell.color]["Q"] = true;
-                                    }
-                                    if (
-                                        sCell.value == "R" &&
-                                        selectedCell.j == 7
-                                    ) {
-                                        RookMoved[sCell.color]["K"] = true;
-                                    }
-                                }
-                                moveSuccess = true;
-                            }
-                        });
-                    }
-                    if (moveSuccess) {
-                        let x = not(turn);
-                        if (x != "") {
-                            //@ts-ignore
-                            turn = x;
-                        }
-                        if (dCell.value == "K") {
-                            if (dCell.color != "") {
-                                kingPos[dCell.color] = {
-                                    i,
-                                    j,
-                                };
-                            }
-                        }
-                        if (vColor == "black" || vColor == "white") {
-                            let cc = checkCheck(state, vColor, kingPos);
-                            console.log("check = ", cc);
-                            if (cc) {
-                                const { i, j } = kingPos[vColor];
-                                console.log(i, j);
-                                state[i][j].cellBg = "check";
-                                console.log(state[i][j].cellBg);
-                                if (
-                                    checkmateCheck(
-                                        state,
-                                        //@ts-ignore
-                                        vColor,
-                                        kingPos
-                                    )
-                                ) {
-                                    alert("Checkmate");
-                                }
-                            }
-                        }
-                        //@ts-ignore
-                        passantAble[vColor] = {
-                            black: undefined,
-                            white: undefined,
-                        };
-                        let move = {
-                            room_code: roomCode,
-                            i: selectedCell.i,
-                            j: selectedCell.j,
-                            k: i,
-                            l: j,
-                        };
-                        ws.send(
-                            JSON.stringify({
-                                event: Event.Move,
-                                msg: JSON.stringify(move),
-                            })
-                        );
-                        selectedCell = {
-                            i: -1,
-                            j: -1,
-                        };
-                        // console.log("state before normalize = ",state);
-                        normalizeState(state, true);
-                    } else {
-                        if (turn == state[i][j].color) {
-                            console.log("ignore 2");
-                            normalizeState(state, false);
-                            let moves = findPossibleMoves(
-                                state,
-                                i,
-                                j,
-                                kingPos,
-                                KingMoved,
-                                RookMoved
-                            );
-                            moves.forEach((m) => {
-                                state[m.i][m.j].cellBg = m.capture
-                                    ? "capture"
-                                    : "move";
-                            });
-                            selectedCell = {
-                                i,
-                                j,
-                            };
-                        }
-                    }
+                    selectedCell = x.selectedCell;
+                    state = x.state
                 }
             } else {
                 if (turn == state[i][j].color) {
                     // console.log("normalizing");
                     console.log("ignore");
-                    normalizeState(state, false);
+                    state = normalizeState(state, false);
                     let moves = findPossibleMoves(
                         state,
                         i,
