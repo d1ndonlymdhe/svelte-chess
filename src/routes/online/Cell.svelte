@@ -565,7 +565,7 @@
             black: Pos;
             white: Pos;
         },
-        passantAble: Passantable,
+        passantAble: Passantable
         // cell: CellType
     ) {
         let retMoves: Move[] = [];
@@ -667,7 +667,7 @@
         },
         kingMoved: KingMoved,
         rookMoved: RookMoved,
-        passantAble: Passantable,
+        passantAble: Passantable
         // cell: CellType
     ) {
         const moves = findMovesNoSanitize(
@@ -682,7 +682,6 @@
         console.log("moves no sanitize = ", moves);
         return sanitizeMoves(state, moves, i, j, kingPos, passantAble);
         // return sanitizeMoves(state, moves, i, j, kingPos, passantAble, cell);
-
     }
     export function checkCheck(
         state: CellType[][],
@@ -767,7 +766,7 @@
                                     Q: true,
                                 },
                             },
-                            passantAble,
+                            passantAble
                             // cell
                         );
                         if (possibleMoves.length > 0) {
@@ -794,7 +793,7 @@
         roomCode: string,
         ws: WebSocket,
         promotion: boolean,
-        promotePos: Pos,
+        promotePos: Pos
         // cell: CellType
     ) {
         const sCell = state[selectedCell.i][selectedCell.j];
@@ -806,7 +805,7 @@
             kingPos,
             KingMoved,
             RookMoved,
-            passantAble,
+            passantAble
             // cell
         );
         let moveSuccess = false;
@@ -1076,7 +1075,7 @@
                     kingPos,
                     KingMoved,
                     RookMoved,
-                    passantAble,
+                    passantAble
                     // cell
                 );
                 moves.forEach((m) => {
@@ -1089,7 +1088,17 @@
             }
         }
         console.log(state);
-        return { state, selectedCell ,kingPos,KingMoved,RookMoved,turn,passantAble,promotePos,promotion};
+        return {
+            state,
+            selectedCell,
+            kingPos,
+            KingMoved,
+            RookMoved,
+            turn,
+            passantAble,
+            promotePos,
+            promotion,
+        };
     }
 </script>
 
@@ -1120,7 +1129,7 @@
         black: Pos;
         white: Pos;
     };
-    export let rotate:boolean;
+    export let rotate: boolean;
     export let SELF: string;
     export let roomCode: string;
     export let selectedCell: {
@@ -1176,7 +1185,7 @@
                         roomCode,
                         ws,
                         promotion,
-                        promotePos,
+                        promotePos
                         // cell
                     );
                     selectedCell = x.selectedCell;
@@ -1201,7 +1210,7 @@
                         kingPos,
                         KingMoved,
                         RookMoved,
-                        passantAble,
+                        passantAble
                         // cell
                     );
                     moves.forEach((m) => {
@@ -1215,9 +1224,9 @@
             }
         }
     }}
-    class={`relative ${
-        bgColor == "b" ? "bg-slate-700" : "bg-lime-300/50"
-    } ${rotate ? "rotate-180" :""}  text-[#ff79c6] font-bold `}
+    class={`relative ${bgColor == "b" ? "bg-slate-700" : "bg-lime-300/50"} ${
+        rotate ? "scale-y-[-1]" : ""
+    }  text-[#ff79c6] font-bold `}
 >
     <div
         class={`absolute w-full h-full bg-green-300 opacity-40 top-0 left-0 ${

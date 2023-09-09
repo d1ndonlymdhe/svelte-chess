@@ -408,7 +408,7 @@
             </div>
         </div>
     </div>
-    <div class={`grid grid-rows-[repeat(8,1fr)] w-[100vh] h-[100vh] ${rotate ? "rotate-180" :""}`}>
+    <div class={`grid grid-rows-[repeat(8,1fr)] w-[100vh] h-[100vh] ${rotate ? "scale-y-[-1]" :""}`}>
         {#each state as row, i}
             <div class="grid grid-cols-[repeat(8,1fr)]">
                 {#each row as cell, j}
