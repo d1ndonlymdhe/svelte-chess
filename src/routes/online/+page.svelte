@@ -42,8 +42,8 @@
     import Cell, { type CellBg } from "./Cell.svelte";
     import "../../app.css";
     import RoomsInit, { Status } from "./RoomsInit.svelte";
-    let ws = new WebSocket("wss://rustws.cleverapps.io/ws");
-
+    // let ws = new WebSocket("wss://rustws.cleverapps.io/ws");
+    let ws = new WebSocket("ws://localhost:8080/ws");
     let roomCode = "";
     let joinRoomCode = "";
     let RoomGenerateStatus: Status = Status.None;
@@ -75,6 +75,7 @@
         i: -1,
         j: -1,
     };
+    let rotate = false;
     let state: CellType[][] = [
         [
             {
@@ -360,6 +361,7 @@
         bind:promotion
         bind:promotePos
         bind:selectedCell
+        bind:rotate
     />
     <div
         class={`${
@@ -406,7 +408,7 @@
             </div>
         </div>
     </div>
-    <div class="grid grid-rows-[repeat(8,1fr)] w-[100vh] h-[100vh]">
+    <div class={`grid grid-rows-[repeat(8,1fr)] w-[100vh] h-[100vh] ${rotate ? "rotate-180" :""}`}>
         {#each state as row, i}
             <div class="grid grid-cols-[repeat(8,1fr)]">
                 {#each row as cell, j}
@@ -426,6 +428,7 @@
                         bind:ws
                         bind:roomCode
                         bind:SELF
+                        bind:rotate
                     />
                 {/each}
             </div>

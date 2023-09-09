@@ -1089,7 +1089,7 @@
             }
         }
         console.log(state);
-        return { state, selectedCell };
+        return { state, selectedCell ,kingPos,KingMoved,RookMoved,turn,passantAble,promotePos,promotion};
     }
 </script>
 
@@ -1104,7 +1104,6 @@
         RookMoved,
         Turn,
     } from "./+page.svelte";
-    import type { WsMsg } from "./RoomsInit.svelte";
     import { Event } from "./RoomsInit.svelte";
     // export let immutState: CellType[][];
     export let ws: WebSocket;
@@ -1121,6 +1120,7 @@
         black: Pos;
         white: Pos;
     };
+    export let rotate:boolean;
     export let SELF: string;
     export let roomCode: string;
     export let selectedCell: {
@@ -1181,6 +1181,13 @@
                     );
                     selectedCell = x.selectedCell;
                     state = x.state;
+                    RookMoved = x.RookMoved;
+                    kingPos = x.kingPos;
+                    KingMoved = x.KingMoved;
+                    turn = x.turn;
+                    promotePos = x.promotePos;
+                    promotion = x.promotion;
+                    passantAble = x.passantAble;
                 }
             } else {
                 if (turn == state[i][j].color) {
@@ -1210,7 +1217,7 @@
     }}
     class={`relative ${
         bgColor == "b" ? "bg-slate-700" : "bg-lime-300/50"
-    } text-[#ff79c6] font-bold`}
+    } ${rotate ? "rotate-180" :""}  text-[#ff79c6] font-bold `}
 >
     <div
         class={`absolute w-full h-full bg-green-300 opacity-40 top-0 left-0 ${

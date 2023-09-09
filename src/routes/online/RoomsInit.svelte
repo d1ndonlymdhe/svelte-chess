@@ -44,8 +44,8 @@
     export let kingPos: KingPos;
     export let promotion: boolean;
     export let promotePos: Pos;
-    export let selectedCell:Pos;
-
+    export let selectedCell: Pos;
+    export let rotate: boolean;
     import "../../app.css";
 
     import { move, normalizeState } from "./Cell.svelte";
@@ -82,8 +82,15 @@
                         promotion,
                         promotePos
                     );
-                    state = x.state;
                     selectedCell = x.selectedCell;
+                    state = x.state;
+                    rookMoved = x.RookMoved;
+                    kingPos = x.kingPos;
+                    kingMoved = x.KingMoved;
+                    // turn = x.turn;
+                    promotePos = x.promotePos;
+                    promotion = x.promotion;
+                    passantAble = x.passantAble;
                     normalizeState(state, false);
                     break;
                 case Event.GameOver:
@@ -137,6 +144,7 @@
                 msg: "",
             };
             SELF = "white";
+            rotate = false;
             RoomGenerateStatus = Status.Loading;
             wsSend(generateMessage);
         }
@@ -153,6 +161,7 @@
                     msg: joinRoomCode,
                 };
                 SELF = "black";
+                rotate = true;
                 wsSend(joinMsg);
             }
         }
