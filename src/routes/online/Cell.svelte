@@ -807,100 +807,101 @@
         const dCell = state[selectedCell.i][selectedCell.j];
         const KI = sCell.color == "black" ? 0 : 7;
         if (
+            !KingMoved[turn] &&
             selectedCell.i == KI &&
             selectedCell.j == 4 &&
             i == KI &&
             (j == 2 || j == 6)
         ) {
             moves.forEach((m) => {
+                //use same if
                 if (m.i == KI) {
-                    if (j == 2) {
-                        state[KI][2] = {
-                            value: "K",
-                            cellBg: "plain",
-                            color: sCell.color,
-                            prevPos: {
-                                i: KI,
-                                j: 4,
-                            },
-                        };
-                        state[i][3] = {
-                            value: "R",
-                            cellBg: "plain",
-                            color: sCell.color,
-                            prevPos: {
-                                i: KI,
-                                j: 0,
-                            },
-                        };
-                        state[i][0] = {
-                            value: "",
-                            cellBg: "plain",
-                            color: "",
-                            prevPos: {
-                                i: i,
-                                j: 0,
-                            },
-                        };
-                        state[KI][4] = {
-                            value: "",
-                            cellBg: "plain",
-                            color: "",
-                            prevPos: {
-                                i: KI,
-                                j: 4,
-                            },
-                        };
-                        //@ts-ignore
-                        KingMoved[sCell.color] = true;
-                        moveSuccess = true;
-                        //@ts-ignore
-                        RookMoved[sCell.color]["Q"] = true;
-
-                        // break;
-                    } else if (j == 6) {
-                        state[KI][6] = {
-                            value: "K",
-                            cellBg: "plain",
-                            color: sCell.color,
-                            prevPos: {
-                                i: KI,
-                                j: 4,
-                            },
-                        };
-                        state[i][5] = {
-                            value: "R",
-                            cellBg: "plain",
-                            color: sCell.color,
-                            prevPos: {
-                                i: KI,
-                                j: 7,
-                            },
-                        };
-                        state[i][7] = {
-                            value: "",
-                            cellBg: "plain",
-                            color: "",
-                            prevPos: {
-                                i: i,
-                                j: 7,
-                            },
-                        };
-                        state[KI][4] = {
-                            value: "",
-                            cellBg: "plain",
-                            color: "",
-                            prevPos: {
-                                i: KI,
-                                j: 4,
-                            },
-                        };
-                        moveSuccess = true;
-                        //@ts-ignore
-                        KingMoved[sCell.color] = true;
-                        //@ts-ignore
-                        RookMoved[sCell.color]["Q"] = true;
-
+                    if (m.j == j) {
+                        if (j == 2) {
+                            state[KI][2] = {
+                                value: "K",
+                                cellBg: "plain",
+                                color: sCell.color,
+                                prevPos: {
+                                    i: KI,
+                                    j: 4,
+                                },
+                            };
+                            state[i][3] = {
+                                value: "R",
+                                cellBg: "plain",
+                                color: sCell.color,
+                                prevPos: {
+                                    i: KI,
+                                    j: 0,
+                                },
+                            };
+                            state[i][0] = {
+                                value: "",
+                                cellBg: "plain",
+                                color: "",
+                                prevPos: {
+                                    i: i,
+                                    j: 0,
+                                },
+                            };
+                            state[KI][4] = {
+                                value: "",
+                                cellBg: "plain",
+                                color: "",
+                                prevPos: {
+                                    i: KI,
+                                    j: 4,
+                                },
+                            };
+                            //@ts-ignore
+                            KingMoved[sCell.color] = true;
+                            moveSuccess = true;
+                            //@ts-ignore
+                            RookMoved[sCell.color]["Q"] = true;
+                        } else if (j == 6) {
+                            state[KI][6] = {
+                                value: "K",
+                                cellBg: "plain",
+                                color: sCell.color,
+                                prevPos: {
+                                    i: KI,
+                                    j: 4,
+                                },
+                            };
+                            state[i][5] = {
+                                value: "R",
+                                cellBg: "plain",
+                                color: sCell.color,
+                                prevPos: {
+                                    i: KI,
+                                    j: 7,
+                                },
+                            };
+                            state[i][7] = {
+                                value: "",
+                                cellBg: "plain",
+                                color: "",
+                                prevPos: {
+                                    i: i,
+                                    j: 7,
+                                },
+                            };
+                            state[KI][4] = {
+                                value: "",
+                                cellBg: "plain",
+                                color: "",
+                                prevPos: {
+                                    i: KI,
+                                    j: 4,
+                                },
+                            };
+                            moveSuccess = true;
+                            //@ts-ignore
+                            KingMoved[sCell.color] = true;
+                            //@ts-ignore
+                            RookMoved[sCell.color]["Q"] = true;
+                        }
                         // break;
                     }
                 } else if (m.i == i && m.j == j) {
