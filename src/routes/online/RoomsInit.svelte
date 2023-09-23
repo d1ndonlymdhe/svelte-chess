@@ -6,6 +6,7 @@
         GetCode = "GetCode",
         ConnectWith = "ConnectWith",
         OppReady = "OppReady",
+        Promote = "Promote",
     }
 
     export enum Status {
@@ -46,9 +47,10 @@
     export let promotePos: Pos;
     export let selectedCell: Pos;
     export let rotate: boolean;
+    export let name: string;
     import "../../app.css";
 
-    import { move, normalizeState } from "./Cell.svelte";
+    import { move, normalizeState, not } from "./Cell.svelte";
     import type { KingPos, Pos } from "./+page.svelte";
     ws.onopen = () => {
         ws.onmessage = (res) => {
@@ -127,8 +129,38 @@
                     console.log("Opponent Ready");
                     OppStatus = Status.Success;
                     break;
-                default:
+                case Event.Promote:
                     console.log(data);
+                    let promoteMsg: {
+                        i: number;
+                        j: number;
+                        value: "Q" | "R" | "B" | "H";
+                    } = data.msg;
+                    let { i: pi, j: pj, value } = promoteMsg;
+                    state[pi][pj] = {
+                        value: value,
+                        cellBg: "plain",
+                        color: pi == 0 ? "white" : "black",
+                        prevPos: {
+                            i: pi,
+                            j: pj,
+                        },
+                    };
+                    state[pi == 0 ? 1 : 6][pj] = {
+                        value: "",
+                        cellBg: "plain",
+                        color: "",
+                        prevPos: {
+                            i: pi,
+                            j: pj,
+                        },
+                    };
+                    let t = not(turn);
+                    if (t == "white" || t == "black") {
+                        turn = t;
+                    }
+                    break;
+                default:
                     alert("Invalid Event");
             }
         };
@@ -137,11 +169,12 @@
         if (
             ws.OPEN &&
             RoomGenerateStatus == Status.None &&
-            RoomJoinStatus == Status.None
+            RoomJoinStatus == Status.None &&
+            name != ""
         ) {
             let generateMessage: WsMsg<string> = {
                 event: Event.GetCode,
-                msg: "",
+                msg: name,
             };
             SELF = "white";
             rotate = false;
@@ -158,7 +191,10 @@
             if (joinRoomCode.length != 0) {
                 let joinMsg: WsMsg<string> = {
                     event: Event.ConnectWith,
-                    msg: joinRoomCode,
+                    msg: JSON.stringify({
+                        room_code: joinRoomCode,
+                        name,
+                    }),
                 };
                 SELF = "black";
                 rotate = true;
@@ -176,27 +212,39 @@
         OppStatus == Status.Success ? "hidden" : "flex"
     }  justify-center items-center text-2xl w-screen h-screen text-black absolute top-0 left-0 backdrop-blur-lg z-20`}
 >
-    <div class="flex flex-col gap-4 bg-lime-300 px-8 py-2 rounded-md">
-        <div id="roomCode" />
-        <p class="text-center">
-            {#if RoomGenerateStatus == Status.Loading}
-                Loading
-            {:else if RoomGenerateStatus == Status.Success}
-                {roomCode}
-            {/if}
-        </p>
-        <button class="bg-red-400 py-2 rounded-md" on:click={generateRoom}
-            >Generate Room</button
+    {#if ws.OPEN}
+        <form
+            on:submit={joinRoom}
+            class="flex flex-col gap-4 bg-lime-300 px-8 py-2 rounded-md"
         >
-        <label>
-            <p class="text-center">Enter Room Code</p>
-            <input
-                class="bg-red-400 py-2 rounded-md px-2"
-                bind:value={joinRoomCode}
-            />
-        </label>
-        <button class="bg-red-400 py-2 rounded-md" on:click={joinRoom}
-            >Join Room</button
-        >
-    </div>
+            <div id="roomCode" />
+            <label>
+                <p class="text-center">Enter Name</p>
+                <input
+                    class="bg-red-400 py-2 rounded-md px-2"
+                    bind:value={name}
+                />
+            </label>
+            <p class="text-center">
+                {#if RoomGenerateStatus == Status.Loading}
+                    Loading
+                {:else if RoomGenerateStatus == Status.Success}
+                    {roomCode}
+                {/if}
+            </p>
+            <button class="bg-red-400 py-2 rounded-md" on:click={generateRoom}
+                >Generate Room</button
+            >
+            <label>
+                <p class="text-center">Enter Room Code</p>
+                <input
+                    class="bg-red-400 py-2 rounded-md px-2"
+                    bind:value={joinRoomCode}
+                />
+            </label>
+            <button class="bg-red-400 py-2 rounded-md">Join Room</button>
+        </form>
+    {:else}
+        <p>Loading...</p>
+    {/if}
 </div>

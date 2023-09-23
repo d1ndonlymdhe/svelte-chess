@@ -221,7 +221,6 @@
         if (cell.value == "H") {
             [2, -2].forEach((loopI) => {
                 [-1, 1].forEach((loopJ) => {
-                    // ////////console.log(i + loopI, j + loopJ);
                     const di = i + loopI;
                     const dj = j + loopJ;
                     const dRow = state[di];
@@ -239,7 +238,6 @@
             });
             [1, -1].forEach((loopI) => {
                 [-2, 2].forEach((loopJ) => {
-                    // ////////console.log(i + loopI, j + loopJ);
                     const di = i + loopI;
                     const dj = j + loopJ;
                     const dRow = state[di];
@@ -555,7 +553,6 @@
         }
         return cellColor;
     }
-
     export function sanitizeMoves(
         state: CellType[][],
         moves: Move[],
@@ -656,7 +653,6 @@
         //////console.log("retmoves = ", retMoves);
         return retMoves;
     }
-
     export function findPossibleMoves(
         state: CellType[][],
         i: number,
@@ -778,7 +774,6 @@
         }
         return true;
     }
-
     export function move(
         state: CellType[][],
         selectedCell: Pos,
@@ -1049,7 +1044,7 @@
                 k: i,
                 l: j,
             };
-            if (send) {
+            if (send && !promotion) {
                 ws.send(
                     JSON.stringify({
                         event: Event.Move,
@@ -1113,6 +1108,7 @@
         RookMoved,
         Turn,
     } from "./+page.svelte";
+    import type { WsMsg } from "./RoomsInit.svelte";
     import { Event } from "./RoomsInit.svelte";
     // export let immutState: CellType[][];
     export let ws: WebSocket;
@@ -1160,10 +1156,7 @@
     $: cellBg = state[i][j].cellBg;
     const bgColor =
         i % 2 == 0 ? (j % 2 == 0 ? "w" : "b") : j % 2 == 0 ? "b" : "w";
-</script>
-
-<button
-    on:click={() => {
+    let cellClick = () => {
         if (turn == SELF) {
             console.log("selected check", selectedCell);
             if (selectedCell.i > -1 && selectedCell.j > -1) {
@@ -1197,6 +1190,23 @@
                     promotePos = x.promotePos;
                     promotion = x.promotion;
                     passantAble = x.passantAble;
+                    if (promotion) {
+                        let msg: WsMsg<{
+                            room_code: string;
+                            i: number;
+                            j: number;
+                            promote_to: string;
+                        }> = {
+                            event: Event.Promote,
+                            msg: {
+                                room_code: roomCode,
+                                i: i,
+                                j: j,
+                                promote_to: "Q",
+                            },
+                        };
+                        // ws.send()
+                    }
                 }
             } else {
                 if (turn == state[i][j].color) {
@@ -1211,7 +1221,6 @@
                         KingMoved,
                         RookMoved,
                         passantAble
-                        // cell
                     );
                     moves.forEach((m) => {
                         state[m.i][m.j].cellBg = m.capture ? "capture" : "move";
@@ -1223,7 +1232,11 @@
                 }
             }
         }
-    }}
+    };
+</script>
+
+<button
+    on:click={cellClick}
     class={`relative ${bgColor == "b" ? "bg-slate-700" : "bg-lime-300/50"} ${
         rotate ? "scale-y-[-1]" : ""
     }  text-[#ff79c6] font-bold `}

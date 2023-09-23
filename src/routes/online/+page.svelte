@@ -33,17 +33,17 @@
         to: Pos;
     };
     export type KingPos = {
-        black:Pos,
-        white:Pos
-    }
+        black: Pos;
+        white: Pos;
+    };
 </script>
 
 <script lang="ts">
     import Cell, { type CellBg } from "./Cell.svelte";
     import "../../app.css";
-    import RoomsInit, { Status } from "./RoomsInit.svelte";
-    let ws = new WebSocket("wss://rustws.cleverapps.io/ws");
-    // let ws = new WebSocket("ws://localhost:8080/ws");
+    import RoomsInit, { Event, Status } from "./RoomsInit.svelte";
+    // let ws = new WebSocket("wss://rustws.cleverapps.io/ws");
+    let ws = new WebSocket("ws://localhost:8080/ws");
     let roomCode = "";
     let joinRoomCode = "";
     let RoomGenerateStatus: Status = Status.None;
@@ -52,6 +52,7 @@
     let turn: Turn = "white";
     let SELF: Turn = "white";
     let selfId = "";
+    let name = "";
     let RookMoved = {
         white: {
             Q: false,
@@ -318,11 +319,7 @@
             },
         ],
     ];
-    const immutState: CellType[][] = [];
-    state.forEach((r) => {
-        immutState.push([...r]);
-    });
-    let kingPos:KingPos = {
+    let kingPos: KingPos = {
         black: {
             i: 0,
             j: 4,
@@ -332,7 +329,7 @@
             j: 4,
         },
     };
-    
+
     let selectedCell: {
         i: number;
         j: number;
@@ -362,6 +359,7 @@
         bind:promotePos
         bind:selectedCell
         bind:rotate
+        bind:name
     />
     <div
         class={`${
@@ -388,6 +386,16 @@
                                         j: promotePos.j,
                                     },
                                 };
+                                let msg = {
+                                    event: Event.Promote,
+                                    msg: JSON.stringify({
+                                        room_code: roomCode,
+                                        i: promotePos.i,
+                                        j: promotePos.j,
+                                        promote_to: V.toUpperCase(),
+                                    }),
+                                };
+                                ws.send(JSON.stringify(msg));
                             }
                             promotion = false;
                             promotePos = {
@@ -408,7 +416,11 @@
             </div>
         </div>
     </div>
-    <div class={`grid grid-rows-[repeat(8,1fr)] w-[100vh] h-[100vh] ${rotate ? "scale-y-[-1]" :""}`}>
+    <div
+        class={`grid grid-rows-[repeat(8,1fr)] w-[100vh] h-[100vh] ${
+            rotate ? "scale-y-[-1]" : ""
+        }`}
+    >
         {#each state as row, i}
             <div class="grid grid-cols-[repeat(8,1fr)]">
                 {#each row as cell, j}
