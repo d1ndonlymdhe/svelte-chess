@@ -44,7 +44,7 @@
     import RoomsInit, { Event, Status } from "./RoomsInit.svelte";
 
     let ws = new WebSocket(
-        `${location.protocol == "https" ? "wss" : "ws"}://${location.hostname}${
+        `${location.protocol == "https:" ? "wss" : "ws"}://${location.hostname}${
             location.port ? "/" + location.port : ""
         }/ws`
     );
