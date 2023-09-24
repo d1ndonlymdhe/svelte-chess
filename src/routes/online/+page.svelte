@@ -42,8 +42,15 @@
     import Cell, { type CellBg } from "./Cell.svelte";
     import "../../app.css";
     import RoomsInit, { Event, Status } from "./RoomsInit.svelte";
+
+    let ws = new WebSocket(
+        `${location.protocol == "https" ? "wss" : "ws"}://${location.hostname}${
+            location.port ? "/" + location.port : ""
+        }/ws`
+    );
+
     // let ws = new WebSocket("wss://rustws.cleverapps.io/ws");
-    let ws = new WebSocket("ws://localhost:8080/ws");
+    // let ws = new WebSocket("ws://localhost:8080/ws");
     let roomCode = "";
     let joinRoomCode = "";
     let RoomGenerateStatus: Status = Status.None;
