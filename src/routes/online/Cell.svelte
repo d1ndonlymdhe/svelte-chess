@@ -997,7 +997,6 @@
                 }
             });
         }
-        console.log(moveSuccess);
         if (moveSuccess) {
             let x = not(turn);
             if (x != "") {
@@ -1017,7 +1016,6 @@
                 console.log("check = ", cc);
                 if (cc) {
                     const { i, j } = kingPos[vColor];
-                    console.log(i, j);
                     state[i][j].cellBg = "check";
                     console.log(state[i][j].cellBg);
                     if (
@@ -1030,6 +1028,10 @@
                         )
                     ) {
                         alert("Checkmate");
+                    }
+                }else{
+                    if(checkmateCheck(state,vColor,kingPos,passantAble)){
+                        alert("Stalemate");
                     }
                 }
             }
@@ -1062,7 +1064,6 @@
             state = normalizeState(state, true);
         } else {
             if (turn == state[i][j].color) {
-                console.log("ignore 2");
                 state = normalizeState(state, false);
                 let moves = findPossibleMoves(
                     state,
@@ -1083,7 +1084,6 @@
                 };
             }
         }
-        console.log(state);
         return {
             state,
             selectedCell,

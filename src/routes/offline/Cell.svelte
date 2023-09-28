@@ -836,6 +836,7 @@
         moved.forEach((m) => {
             state[m.i][m.j].cellBg = "moved";
         });
+        return state;
         // state = state;
     }
 </script>
@@ -1083,6 +1084,11 @@
                             ) {
                                 alert("Checkmate");
                             }
+                        } else {
+                            let x= checkmateCheck(state,vColor,kingPos);
+                            if(x){
+                                alert("staleMate")
+                            }
                         }
                     }
                     //@ts-ignore
@@ -1097,9 +1103,9 @@
                     // console.log("state before normalize = ",state);
                     normalizeState(state, true);
                 } else {
-                    if (turn == state[i][j].color) {
+                    if (turn != not(state[i][j].color)) {
                         console.log("ignore 2");
-                        normalizeState(state, false);
+                        state = normalizeState(state, false);
                         let moves = findPossibleMoves(
                             state,
                             i,
@@ -1191,6 +1197,7 @@
                 src={`/images/${
                     cell.color
                 }_${cell.value.toLocaleLowerCase()}.png`}
+                class="scale-150"
             />
         </div>
     {/if}
