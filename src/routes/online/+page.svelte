@@ -43,14 +43,14 @@
     import "../../app.css";
     import RoomsInit, { Event, Status } from "./RoomsInit.svelte";
 
-    let ws = new WebSocket(
-        `${location.protocol == "https:" ? "wss" : "ws"}://rustws.cleverapps.io${
-            location.port ? "/" + location.port : ""
-        }/ws`
-    );
+    // let ws = new WebSocket(
+    //     `${
+    //         location.protocol == "https:" ? "wss" : "ws"
+    //     }://${location.hostname}${location.port ? "/" + location.port : ""}/ws`
+    // );
 
     // let ws = new WebSocket("wss://rustws.cleverapps.io/ws");
-    // let ws = new WebSocket("ws://localhost:8080/ws");
+    let ws = new WebSocket("ws://localhost:8080/ws");
     let roomCode = "";
     let joinRoomCode = "";
     let RoomGenerateStatus: Status = Status.None;
@@ -60,6 +60,7 @@
     let SELF: Turn = "white";
     let selfId = "";
     let name = "";
+    let captured: CellType[] = [];
     let RookMoved = {
         white: {
             Q: false,
@@ -326,6 +327,8 @@
             },
         ],
     ];
+    $: whiteCaptured = captured.filter((c) => c.color == "white");
+    $: blackCaptured = captured.filter((c) => c.color == "black");
     let kingPos: KingPos = {
         black: {
             i: 0,
@@ -367,6 +370,7 @@
         bind:selectedCell
         bind:rotate
         bind:name
+        bind:captured
     />
     <div
         class={`${
@@ -423,34 +427,68 @@
             </div>
         </div>
     </div>
-    <div
-        class={`grid grid-rows-[repeat(8,1fr)] w-[100vh] h-[100vh] ${
-            rotate ? "scale-y-[-1]" : ""
-        }`}
-    >
-        {#each state as row, i}
-            <div class="grid grid-cols-[repeat(8,1fr)]">
-                {#each row as cell, j}
-                    <Cell
-                        bind:cell
-                        {i}
-                        {j}
-                        bind:state
-                        bind:selectedCell
-                        bind:kingPos
-                        bind:turn
-                        bind:KingMoved
-                        bind:RookMoved
-                        bind:passantAble
-                        bind:promotion
-                        bind:promotePos
-                        bind:ws
-                        bind:roomCode
-                        bind:SELF
-                        bind:rotate
-                    />
+    <div class="grid grid-cols-[100vh_auto] gap-4 w-screen h-screen bg-purple-500">
+        <div
+            class={`grid grid-rows-[repeat(8,1fr)] w-[100vh] h-[100vh] ${
+                rotate ? "scale-y-[-1]" : ""
+            }`}
+        >
+            {#each state as row, i}
+                <div class="grid grid-cols-[repeat(8,1fr)]">
+                    {#each row as cell, j}
+                        <Cell
+                            bind:cell
+                            {i}
+                            {j}
+                            bind:state
+                            bind:selectedCell
+                            bind:kingPos
+                            bind:turn
+                            bind:KingMoved
+                            bind:RookMoved
+                            bind:passantAble
+                            bind:promotion
+                            bind:promotePos
+                            bind:ws
+                            bind:roomCode
+                            bind:SELF
+                            bind:rotate
+                            bind:captured
+                        />
+                    {/each}
+                </div>
+            {/each}
+        </div>
+        <div class="flex flex-col justify-between py-4 w-full h-full">
+            <div class="flex h-16 w-full bg-green-300 flex-row gap-2">
+                {#each whiteCaptured as c}
+                    <div>
+                        <img
+                            alt={`${c.color}|${c.value}`}
+                            src={`/images/${
+                                c.color
+                            }_${c.value.toLocaleLowerCase()}.png`}
+                        />
+                    </div>
                 {/each}
             </div>
-        {/each}
+            <div
+                class={`text-4xl ${turn == "white" ? "text-white" : "text-black"}`}
+            >
+                Turn : {turn}
+            </div>
+            <div class="flex h-16 w-full bg-blue-300 flex-row gap-2">
+                {#each blackCaptured as c}
+                    <div>
+                        <img
+                            alt={`${c.color}|${c.value}`}
+                            src={`/images/${
+                                c.color
+                            }_${c.value.toLocaleLowerCase()}.png`}
+                        />
+                    </div>
+                {/each}
+            </div>
+        </div>
     </div>
 </div>

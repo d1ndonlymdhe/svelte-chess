@@ -14,7 +14,6 @@
 </script>
 
 <script lang="ts">
-    import { afterUpdate, onMount } from "svelte";
 
     import "../../app.css";
     import type {
@@ -39,6 +38,7 @@
         black: Pos;
         white: Pos;
     };
+    export let captured: CellType[]
     // export let castleAble: boolean;
     export let selectedCell: {
         i: number;
@@ -985,6 +985,9 @@
                     //if not king in castle position
                     moves.forEach((m) => {
                         if (m.i == i && m.j == j) {
+                            if(state[i][j].value !== ""){
+                              captured =  [...captured,state[i][j]]
+                            }
                             state[i][j] = {
                                 ...state[selectedCell.i][selectedCell.j],
                                 prevPos: {
@@ -1018,6 +1021,10 @@
                                         passant.i == selectedCell.i &&
                                         passant.j == j
                                     ) {
+                                        if(state[passant.i][passant.j].value !== ""){
+                                            captured = [...captured,state[passant.i][passant.j]];
+                                            // captured.push(state[passant.i][passant.j]);
+                                        }
                                         state[passant.i][passant.j] = {
                                             cellBg: "plain",
                                             color: "",
@@ -1048,6 +1055,7 @@
                                     RookMoved[sCell.color]["K"] = true;
                                 }
                             }
+                            console.log("captured = ",captured)
                             moveSuccess = true;
                         }
                     });
@@ -1066,6 +1074,7 @@
                             };
                         }
                     }
+                    
                     if (vColor == "black" || vColor == "white") {
                         let cc = checkCheck(state, vColor, kingPos);
                         console.log("check = ", cc);

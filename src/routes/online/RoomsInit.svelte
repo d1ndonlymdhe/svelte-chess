@@ -48,6 +48,7 @@
     export let selectedCell: Pos;
     export let rotate: boolean;
     export let name: string;
+    export let captured: CellType[];
     import "../../app.css";
 
     import { move, normalizeState, not } from "./Cell.svelte";
@@ -82,7 +83,8 @@
                         roomCode,
                         ws,
                         promotion,
-                        promotePos
+                        promotePos,
+                        captured
                     );
                     selectedCell = x.selectedCell;
                     state = x.state;
@@ -93,6 +95,7 @@
                     promotePos = x.promotePos;
                     promotion = x.promotion;
                     passantAble = x.passantAble;
+                    captured = x.captured;
                     normalizeState(state, false);
                     break;
                 case Event.GameOver:

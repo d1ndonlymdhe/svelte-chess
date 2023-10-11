@@ -61,8 +61,6 @@
         i: -1,
         j: -1,
     };
-    let animateable: Animate[] = [];
-    // let prev: CellType[][];
     let state: CellType[][] = [
         [
             {
@@ -305,6 +303,9 @@
             },
         ],
     ];
+    let captured: CellType[] = [];
+    $: whiteCaptured = captured.filter((c) => c.color == "white");
+    $: blackCaptured = captured.filter((c) => c.color == "black");
     const immutState: CellType[][] = [];
     state.forEach((r) => {
         immutState.push([...r]);
@@ -371,25 +372,59 @@
         </div>
     </div>
 </div>
-<div class="grid grid-rows-[repeat(8,1fr)] w-[100vh] h-[100vh]">
-    {#each state as row, i}
-        <div class="grid grid-cols-[repeat(8,1fr)]">
-            {#each row as cell, j}
-                <Cell
-                    bind:cell
-                    {i}
-                    {j}
-                    bind:state
-                    bind:selectedCell
-                    bind:kingPos
-                    bind:turn
-                    bind:KingMoved
-                    bind:RookMoved
-                    bind:passantAble
-                    bind:promotion
-                    bind:promotePos
-                />
+<div class="grid grid-cols-[100vh_auto] gap-4 w-screen h-screen bg-purple-500">
+    <div class="grid grid-rows-[repeat(8,1fr)] w-[100vh] h-[100vh] bg-white">
+        {#each state as row, i}
+            <div class="grid grid-cols-[repeat(8,1fr)]">
+                {#each row as cell, j}
+                    <Cell
+                        bind:cell
+                        {i}
+                        {j}
+                        bind:state
+                        bind:selectedCell
+                        bind:kingPos
+                        bind:turn
+                        bind:KingMoved
+                        bind:RookMoved
+                        bind:passantAble
+                        bind:promotion
+                        bind:promotePos
+                        bind:captured
+                    />
+                {/each}
+            </div>
+        {/each}
+    </div>
+    <div class="flex flex-col justify-between py-4 w-full h-full">
+        <div class="flex h-16 w-full bg-green-300 flex-row gap-2">
+            {#each whiteCaptured as c}
+                <div>
+                    <img
+                        alt={`${c.color}|${c.value}`}
+                        src={`/images/${
+                            c.color
+                        }_${c.value.toLocaleLowerCase()}.png`}
+                    />
+                </div>
             {/each}
         </div>
-    {/each}
+        <div
+            class={`text-4xl ${turn == "white" ? "text-white" : "text-black"}`}
+        >
+            Turn : {turn}
+        </div>
+        <div class="flex h-16 w-full bg-blue-300 flex-row gap-2">
+            {#each blackCaptured as c}
+                <div>
+                    <img
+                        alt={`${c.color}|${c.value}`}
+                        src={`/images/${
+                            c.color
+                        }_${c.value.toLocaleLowerCase()}.png`}
+                    />
+                </div>
+            {/each}
+        </div>
+    </div>
 </div>

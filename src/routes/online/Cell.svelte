@@ -788,7 +788,8 @@
         roomCode: string,
         ws: WebSocket,
         promotion: boolean,
-        promotePos: Pos
+        promotePos: Pos,
+        captured: CellType[]
         // cell: CellType
     ) {
         const sCell = state[selectedCell.i][selectedCell.j];
@@ -933,6 +934,9 @@
             console.log(moves);
             moves.forEach((m) => {
                 if (m.i == i && m.j == j) {
+                    if (state[i][j].value !== "") {
+                        captured.push(state[i][j]);
+                    }
                     state[i][j] = {
                         ...state[selectedCell.i][selectedCell.j],
                         prevPos: {
@@ -963,6 +967,9 @@
                         }
                         if (passant) {
                             if (passant.i == selectedCell.i && passant.j == j) {
+                                if (state[passant.i][passant.j].value !== "") {
+                                    captured.push(state[passant.i][passant.j]);
+                                }
                                 state[passant.i][passant.j] = {
                                     cellBg: "plain",
                                     color: "",
@@ -1029,8 +1036,8 @@
                     ) {
                         alert("Checkmate");
                     }
-                }else{
-                    if(checkmateCheck(state,vColor,kingPos,passantAble)){
+                } else {
+                    if (checkmateCheck(state, vColor, kingPos, passantAble)) {
                         alert("Stalemate");
                     }
                 }
@@ -1094,6 +1101,7 @@
             passantAble,
             promotePos,
             promotion,
+            captured
         };
     }
 </script>
@@ -1133,7 +1141,7 @@
         i: number;
         j: number;
     };
-
+    export let captured: CellType[]
     let slideX = 0;
     let slideY = 0;
 
@@ -1179,7 +1187,8 @@
                         roomCode,
                         ws,
                         promotion,
-                        promotePos
+                        promotePos,
+                        captured
                         // cell
                     );
                     selectedCell = x.selectedCell;
@@ -1191,6 +1200,7 @@
                     promotePos = x.promotePos;
                     promotion = x.promotion;
                     passantAble = x.passantAble;
+                    captured = x.captured;
                     if (promotion) {
                         let msg: WsMsg<{
                             room_code: string;
