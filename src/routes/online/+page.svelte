@@ -50,7 +50,8 @@
     // );
 
     // let ws = new WebSocket("wss://rustws.cleverapps.io/ws");
-    let ws = new WebSocket("ws://localhost:8080/ws");
+    // let ws = new WebSocket("ws://localhost:8080/ws");
+    let ws = new WebSocket("https://rustws.cleverapps.io/ws")
     let roomCode = "";
     let joinRoomCode = "";
     let RoomGenerateStatus: Status = Status.None;
